@@ -44,7 +44,7 @@ export default function LoginPage() {
           </button>
         </form>
         <p className="text-center text-sm">
-          Pas encore inscrit ? <Link href="/sign-up" className="link">Créer un compte</Link>
+          Pas encore inscrit ? <Link href="/signup" className="link">Créer un compte</Link>
         </p>
       </div>
     </div>
