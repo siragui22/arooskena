@@ -29,17 +29,17 @@ export default function PrestataireDashboard() {
         return;
       }
 
-             // Vérifier si l'utilisateur est prestataire
-       const { data: userData } = await supabase
-         .from('users')
-         .select(`
-           *,
-           roles(name, label)
-         `)
-         .eq('auth_user_id', user.id)
-         .single();
+      // Vérifier si l'utilisateur est prestataire
+      const { data: userData } = await supabase
+        .from('users')
+        .select(`
+          *,
+          roles(name, label)
+        `)
+        .eq('auth_user_id', user.id)
+        .single();
 
-       if (!userData || userData.roles?.name !== 'prestataire') {
+      if (!userData || userData.roles?.name !== 'prestataire') {
         router.push('/dashboard');
         return;
       }
@@ -323,14 +323,14 @@ export default function PrestataireDashboard() {
                   </div>
                 ))}
               </div>
-              
-              {services.length > 6 && (
-                <div className="text-center mt-6">
-                  <Link href="/dashboard-prestataire/services" className="btn-aroos-outline">
-                    Voir tous mes services ({services.length})
-                  </Link>
-                </div>
-              )}
+            )}
+            
+            {services.length > 6 && (
+              <div className="text-center mt-6">
+                <Link href="/dashboard-prestataire/services" className="btn-aroos-outline">
+                  Voir tous mes services ({services.length})
+                </Link>
+              </div>
             )}
           </div>
         )}

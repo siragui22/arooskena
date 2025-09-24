@@ -47,7 +47,7 @@ const Navbar = () => {
       {/* Logo à gauche */}
       <div className="flex-1">
         <Link href="/" className="flex items-center space-x-2">
-          <Image src="/logo.svg" alt="Logo" width={132} height={132} />
+          <Image src="/logo.svg" alt="Logo" width={150} height={132} />
         </Link>
       </div>
 
@@ -62,12 +62,10 @@ const Navbar = () => {
           <>
             {user ? (
               <div className="flex items-center space-x-4">
-                <span className="text-sm text-gray-600">
-                  Bonjour, {user.email}
-                </span>
+
                 <button 
                   onClick={handleSignOut}
-                  className="text-gray-600 hover:text-aroosPink"
+                  className="text-gray-600 hover:text-aroosPink cursor-pointer"
                 >
                   Déconnexion
                 </button>
@@ -75,10 +73,10 @@ const Navbar = () => {
             ) : (
               <>
                 <Link href="/sign-in">
-                  <button className="text-gray-600 hover:text-aroosPink">Connexion</button>
+                  <button className="text-gray-600 hover:text-aroosPink cursor-pointer">Connexion</button>
                 </Link>
                 <Link href="/sign-up">
-                  <button className="text-gray-600 hover:text-aroosPink">Inscription</button>
+                  <button className="text-gray-600 hover:text-aroosPink cursor-pointer">Inscription</button>
                 </Link>
               </>
             )}

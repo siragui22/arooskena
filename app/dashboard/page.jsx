@@ -7,8 +7,10 @@ import Link from 'next/link';
 
 export default function DashboardPage() {
   const [user, setUser] = useState(null);
+  const [userData, setUserData] = useState(null);
   const [profile, setProfile] = useState(null);
   const [mariage, setMariage] = useState(null);
+  const [prestataire, setPrestataire] = useState(null);
   const [loading, setLoading] = useState(true);
   const [stats, setStats] = useState({
     taches: 0,
@@ -29,12 +31,17 @@ export default function DashboardPage() {
 
       setUser(user);
 
-      // Récupérer le profil utilisateur
+      // Récupérer le profil utilisateur avec le rôle
       const { data: userData } = await supabase
         .from('users')
-        .select('*')
+        .select(`
+          *,
+          roles(name, label)
+        `)
         .eq('auth_user_id', user.id)
         .single();
+
+      setUserData(userData);
 
       if (userData) {
         const { data: profileData } = await supabase
@@ -43,7 +50,27 @@ export default function DashboardPage() {
           .eq('user_id', userData.id)
           .single();
 
-        setProfile(profileData);
+        // Si pas de profil, en créer un
+        if (!profileData) {
+          const { data: newProfile, error: insertError } = await supabase
+            .from('profiles')
+            .insert({
+              user_id: userData.id,
+              first_name: '',
+              last_name: '',
+              phone: ''
+            })
+            .select()
+            .single();
+          
+          if (insertError) {
+            console.error("Erreur lors de la création du profil:", insertError);
+          } else {
+            setProfile(newProfile);
+          }
+        } else {
+          setProfile(profileData);
+        }
 
         // Récupérer le mariage
         const { data: mariageData } = await supabase
@@ -53,6 +80,17 @@ export default function DashboardPage() {
           .single();
 
         setMariage(mariageData);
+
+        // Si l'utilisateur est prestataire, charger ses données
+        if (userData.roles?.name === 'prestataire') {
+          const { data: prestataireData } = await supabase
+            .from('prestataires')
+            .select('*')
+            .eq('user_id', userData.id)
+            .single();
+
+          setPrestataire(prestataireData);
+        }
 
         // Récupérer les statistiques
         if (mariageData) {
@@ -119,12 +157,30 @@ export default function DashboardPage() {
                 Gérez votre mariage de rêve avec Arooskena
               </p>
             </div>
-            <div className="profile-card">
-              <div className="profile-avatar">
-                {(profile?.first_name || user?.email?.charAt(0) || 'U').toUpperCase()}
+            <div className="flex items-center gap-4">
+              <div className="avatar">
+                {profile?.avatar ? (
+                  <div className="mask mask-squircle h-16 w-16">
+                    <img 
+                      src={`${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/avatars/${profile.avatar}`}
+                      alt="Avatar"
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                ) : (
+                  <div className="mask mask-squircle h-16 w-16 bg-gradient-to-r from-pink-500 to-purple-600 text-white flex items-center justify-center font-bold text-xl">
+                    {(profile?.first_name || user?.email?.charAt(0) || 'U').toUpperCase()}
+                  </div>
+                )}
               </div>
-              <h3 className="font-semibold text-gray-800">{profile?.first_name || 'Utilisateur'}</h3>
-              <p className="text-sm text-gray-600 capitalize">{profile?.role || 'couple'}</p>
+              <div className="text-right">
+                <h3 className="font-semibold text-gray-800">
+                  {profile?.first_name ? `${profile.first_name} ${profile.last_name || ''}` : 'Utilisateur'}
+                </h3>
+                <Link href="/dashboard/profile" className="btn-aroos-outline btn-sm">
+                  ✏️ Modifier mon profil
+                </Link>
+              </div>
             </div>
           </div>
         </div>
@@ -170,6 +226,42 @@ export default function DashboardPage() {
             <div className="text-gray-600">Favoris</div>
           </div>
         </div>
+
+        {/* Section spéciale pour les prestataires */}
+        {userData?.roles?.name === 'prestataire' && (
+          <div className="section-aroos mb-8 bg-gradient-to-r from-blue-50 to-indigo-50 border-2 border-blue-200">
+            <div className="flex items-center justify-between">
+              <div>
+                <h2 className="text-2xl font-bold text-blue-800 mb-2 flex items-center">
+                  <span className="icon-aroos mr-3">🏢</span>
+                  Mon Annuaire d'Entreprise
+                </h2>
+                {prestataire ? (
+                  <div>
+                    <p className="text-blue-700 mb-2">
+                      <strong>{prestataire.nom_entreprise}</strong> - Votre annuaire est actif
+                    </p>
+                    <div className="flex items-center gap-2">
+                      <span className={`badge-aroos ${prestataire.is_verified ? 'bg-green-500' : 'bg-yellow-500'}`}>
+                        {prestataire.is_verified ? '✅ Vérifié' : '⏳ En attente de vérification'}
+                      </span>
+                      {prestataire.is_featured && (
+                        <span className="badge-aroos bg-purple-500">⭐ En vedette</span>
+                      )}
+                    </div>
+                  </div>
+                ) : (
+                  <p className="text-blue-700">
+                    Créez votre annuaire pour apparaître dans notre plateforme et attirer de nouveaux clients
+                  </p>
+                )}
+              </div>
+              <Link href={prestataire ? "/prestataires" : "/prestataires/setup"} className="btn-aroos">
+                {prestataire ? '✏️ Gérer mon annuaire' : '➕ Créer mon annuaire'}
+              </Link>
+            </div>
+          </div>
+        )}
 
         {/* Actions rapides */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
@@ -268,6 +360,19 @@ export default function DashboardPage() {
               </h2>
               
               <div className="grid grid-cols-1 gap-3">
+                {/* Bouton Mon Entreprise pour les prestataires */}
+                {userData?.roles?.name === 'prestataire' && (
+                  <Link href={prestataire ? "/prestataires" : "/prestataires/setup"} className="card-hover p-4 rounded-lg flex items-center bg-gradient-to-r from-blue-50 to-indigo-50 border-2 border-blue-200">
+                    <span className="text-2xl mr-3">🏢</span>
+                    <div>
+                      <h3 className="font-semibold text-blue-800">Mon Entreprise</h3>
+                      <p className="text-sm text-blue-600">
+                        {prestataire ? 'Gérer mon annuaire' : 'Créer mon annuaire'}
+                      </p>
+                    </div>
+                  </Link>
+                )}
+                
                 <Link href="/dashboard/profile" className="card-hover p-4 rounded-lg flex items-center">
                   <span className="text-2xl mr-3">👤</span>
                   <div>

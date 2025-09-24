@@ -45,9 +45,9 @@ const NavItems = () => {
     if (userRole === 'admin') {
       links.push({ href: '/admin', label: 'Admin', icon: '👑' });
     } else if (userRole === 'prestataire') {
-      links.push({ href: '/dashboard-prestataire', label: 'Mon Espace', icon: '🏢' });
+      links.push({ href: '/dashboard-prestataire', label: 'Mon Espace',  });
     } else {
-      links.push({ href: '/dashboard', label: 'Mon Dashboard', icon: '💒' });
+      links.push({ href: '/dashboard', label: 'Mon Dashboard',  });
     }
   }
 

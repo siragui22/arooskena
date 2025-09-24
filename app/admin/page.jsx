@@ -21,35 +21,69 @@ export default function AdminDashboard() {
 
   useEffect(() => {
     const checkAdmin = async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      
+      // 1. Vérifier l’utilisateur connecté via Supabase Auth
+      const { data: { user }, error: userError } = await supabase.auth.getUser();
+  
+      if (userError) {
+        console.error("❌ Erreur auth.getUser:", userError);
+      }
+  
       if (!user) {
+        console.warn("⚠️ Aucun utilisateur connecté, redirection vers /sign-in");
         router.push('/sign-in');
         return;
       }
-
-              // Vérifier si l'utilisateur est admin
-        const { data: userData } = await supabase
-          .from('users')
-          .select(`
-            *,
-            roles(name, label)
-          `)
-          .eq('auth_user_id', user.id)
-          .single();
-
-        if (!userData || userData.roles?.name !== 'admin') {
+  
+      // 2. Charger les infos de l’utilisateur depuis la table users + jointure avec roles
+      const { data: userData, error } = await supabase
+        .from('users')
+        .select(`
+          id,
+          email,
+          auth_user_id,
+          role_id,
+          roles:role_id(name, label)
+        `)
+        .eq('auth_user_id', user.id)
+        .single();
+  
+      if (error) {
+        console.error("❌ Erreur chargement userData:", error);
         router.push('/dashboard');
         return;
       }
-
+  
+      console.log("✅ Données utilisateur récupérées:", userData);
+  
+      // 3. Vérifier si l’utilisateur est admin
+      if (!userData) {
+        console.warn("⚠️ userData est vide → redirection vers /dashboard");
+        router.push('/dashboard');
+        return;
+      }
+  
+      if (!userData.roles) {
+        console.warn("⚠️ Aucun rôle trouvé pour cet utilisateur → redirection vers /dashboard");
+        router.push('/dashboard');
+        return;
+      }
+  
+      if (userData.roles.name !== 'admin') {
+        console.warn(`⚠️ Utilisateur avec rôle ${userData.roles.name}, pas admin → redirection`);
+        router.push('/dashboard');
+        return;
+      }
+  
+      // 4. Si admin → autorisé
+      console.log("✅ Utilisateur admin détecté → accès autorisé");
       setUser(user);
       await loadData();
       setLoading(false);
     };
-
+  
     checkAdmin();
   }, [router]);
+  
 
   const loadData = async () => {
     try {
@@ -81,15 +115,23 @@ export default function AdminDashboard() {
 
       setUsers(recentUsers || []);
 
-      // Charger les prestataires récents
-      const { data: recentPrestataires } = await supabase
+      // Charger les prestataires récents avec les catégories
+      const { data: recentPrestataires, error: prestatairesError } = await supabase
         .from('prestataires')
         .select(`
           *,
-          users(email, first_name, roles(name, label))
+          categories(name, label),
+          subcategories(name, label),
+          subscription_types(name)
         `)
         .order('created_at', { ascending: false })
         .limit(10);
+
+      if (prestatairesError) {
+        console.error('❌ Erreur lors du chargement des prestataires:', prestatairesError);
+      } else {
+        console.log('✅ Prestataires chargés:', recentPrestataires?.length || 0, recentPrestataires);
+      }
 
       setPrestataires(recentPrestataires || []);
 
@@ -148,7 +190,7 @@ export default function AdminDashboard() {
                 Gestion de la plateforme Arooskena
               </p>
             </div>
-            <Link href="/dashboard" className="btn-aroos-outline">
+            <Link href="/dashboard" className="btn btn-outline">
               ← Retour au Dashboard
             </Link>
           </div>
@@ -217,16 +259,19 @@ export default function AdminDashboard() {
                   Actions rapides
                 </h3>
                 <div className="space-y-3">
-                  <button className="btn-aroos-outline w-full">
+                  <Link href="/admin/users" className="btn btn-outline w-full">
                     👥 Gérer les utilisateurs
-                  </button>
-                  <button className="btn-aroos-outline w-full">
+                  </Link>
+                  <Link href="/admin/roles" className="btn btn-outline w-full">
+                    🎭 Gérer les rôles
+                  </Link>
+                  <button className="btn btn-outline w-full">
                     🏢 Vérifier les prestataires
                   </button>
-                  <button className="btn-aroos-outline w-full">
+                  <button className="btn btn-outline w-full">
                     🖼️ Gérer le carrousel
                   </button>
-                  <button className="btn-aroos-outline w-full">
+                  <button className="btn btn-outline w-full">
                     📊 Voir les rapports
                   </button>
                 </div>
@@ -277,9 +322,22 @@ export default function AdminDashboard() {
                     <tr key={user.id}>
                                              <td>
                          <div className="flex items-center">
-                           <div className="profile-avatar w-8 h-8 text-sm">
-                             {user.profiles?.[0]?.first_name?.charAt(0) || user.email?.charAt(0)}
-                           </div>
+                         <div className="avatar">
+                           {user.profiles?.[0]?.avatar ? (
+                             <div className="mask mask-squircle h-12 w-12">
+                               <img 
+                                 src={`${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/profil_avatars/${user.profiles[0].avatar}`}
+                                 alt="Avatar"
+                                 className="w-full h-full object-cover"
+                               />
+                             </div>
+                           ) : (
+                             <div className="mask mask-squircle h-12 w-12 bg-gradient-to-r from-pink-500 to-purple-600 text-white flex items-center justify-center font-bold text-lg">
+                               {user.profiles?.[0]?.first_name?.charAt(0) ||
+                                 user.email?.charAt(0)}
+                             </div>
+                           )}
+                         </div>
                            <div className="ml-3">
                              <div className="font-medium">
                                {user.profiles?.[0]?.first_name} {user.profiles?.[0]?.last_name}
@@ -325,65 +383,149 @@ export default function AdminDashboard() {
         )}
 
         {activeTab === 'prestataires' && (
-          <div className="section-aroos">
-            <h3 className="text-lg font-bold mb-4 flex items-center">
-              <span className="icon-aroos mr-2">🏢</span>
-              Gestion des prestataires
-            </h3>
-            
-            <div className="overflow-x-auto">
-              <table className="table-aroos w-full">
-                <thead>
-                  <tr>
-                    <th>Entreprise</th>
-                    <th>Catégorie</th>
-                    <th>Vérifié</th>
-                    <th>Abonnement</th>
-                    <th>Date d'inscription</th>
-                    <th>Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {prestataires.map((prestataire) => (
-                    <tr key={prestataire.id}>
-                      <td>
-                        <div className="font-medium">{prestataire.nom_entreprise}</div>
-                        <div className="text-sm text-gray-600">{prestataire.users?.email}</div>
-                      </td>
-                      <td>
-                        <span className="badge-aroos bg-blue-500">
-                          {prestataire.categorie}
-                        </span>
-                      </td>
-                      <td>
-                        <span className={`badge-aroos ${
-                          prestataire.is_verified ? 'bg-green-500' : 'bg-yellow-500'
-                        }`}>
-                          {prestataire.is_verified ? 'Vérifié' : 'En attente'}
-                        </span>
-                      </td>
-                      <td>
-                        <span className="badge-aroos bg-purple-500">
-                          {prestataire.subscription_type}
-                        </span>
-                      </td>
-                      <td>{new Date(prestataire.created_at).toLocaleDateString('fr-FR')}</td>
-                      <td>
-                        <div className="flex space-x-2">
-                          <button
-                            onClick={() => handlePrestataireVerification(prestataire.id, !prestataire.is_verified)}
-                            className={`btn btn-xs ${
-                              prestataire.is_verified ? 'btn-warning' : 'btn-success'
-                            }`}
-                          >
-                            {prestataire.is_verified ? 'Dévérifier' : 'Vérifier'}
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+          <div className="space-y-6">
+            {/* En-tête */}
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+              <div>
+                <h3 className="text-2xl font-bold text-gray-800 flex items-center">
+                  <span className="text-3xl mr-3">🏢</span>
+                  Gestion des prestataires
+                </h3>
+              </div>
+              <div className="stats shadow">
+                <div className="stat">
+                  <div className="stat-title">Total</div>
+                  <div className="stat-value text-primary">{stats.totalPrestataires}</div>
+                </div>
+                <div className="stat">
+                  <div className="stat-title">Vérifiés</div>
+                  <div className="stat-value text-success">
+                    {prestataires.filter(p => p.is_verified).length}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Tableau responsive avec DaisyUI */}
+            <div className="card bg-base-100 shadow-xl">
+              <div className="card-body p-0">
+                <div className="overflow-x-auto">
+                  <table className="table table-zebra w-full">
+                    <thead>
+                      <tr>
+                        <th>Entreprise</th>
+                        <th className="hidden md:table-cell">Catégorie</th>
+                        <th className="hidden lg:table-cell">Sous-catégorie</th>
+                        <th>Vérifié</th>
+                        <th className="hidden xl:table-cell">Abonnement</th>
+                        <th className="hidden 2xl:table-cell">Date d'inscription</th>
+                        <th>Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {prestataires.map((prestataire) => (
+                        <tr key={prestataire.id} className="hover">
+                          <td>
+                            <div className="flex items-center space-x-3">
+                              <div className="avatar">
+                                <div className="mask mask-squircle w-12 h-12 bg-gradient-to-r from-pink-500 to-purple-600 text-white flex items-center justify-center font-bold text-lg">
+                                  {prestataire.nom_entreprise?.charAt(0) || 'P'}
+                                </div>
+                              </div>
+                              <div>
+                                <div className="font-bold text-sm sm:text-base">
+                                  {prestataire.nom_entreprise}
+                                </div>
+                                <div className="text-xs sm:text-sm opacity-70">
+                                  {prestataire.email || 'N/A'}
+                                </div>
+                                <div className="text-xs opacity-50 md:hidden">
+                                  {prestataire.categories?.label || prestataire.categories?.name || 'N/A'}
+                                </div>
+                                <div className="text-xs opacity-50 lg:hidden">
+                                  {prestataire.subcategories?.label || 'N/A'}
+                                </div>
+                              </div>
+                            </div>
+                          </td>
+                          <td className="hidden md:table-cell">
+                            <div className="badge badge-outline">
+                              {prestataire.categories?.label || prestataire.categories?.name || 'N/A'}
+                            </div>
+                          </td>
+                          <td className="hidden lg:table-cell">
+                            <div className="badge badge-ghost">
+                              {prestataire.subcategories?.label || 'N/A'}
+                            </div>
+                          </td>
+                          <td>
+                            {prestataire.is_verified ? (
+                              <div className="badge badge-success gap-2">
+                                <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
+                                </svg>
+                                Vérifié
+                              </div>
+                            ) : (
+                              <div className="badge badge-warning gap-2">
+                                <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                                En attente
+                              </div>
+                            )}
+                          </td>
+                          <td className="hidden lg:table-cell">
+                            <div className="badge badge-primary">
+                              {prestataire.subscription_types?.name || 'Gratuit'}
+                            </div>
+                          </td>
+                          <td className="hidden 2xl:table-cell">
+                            <div className="text-sm">
+                              {new Date(prestataire.created_at).toLocaleDateString('fr-FR')}
+                            </div>
+                            <div className="text-xs opacity-70">
+                              {new Date(prestataire.created_at).toLocaleTimeString('fr-FR', { 
+                                hour: '2-digit', 
+                                minute: '2-digit' 
+                              })}
+                            </div>
+                          </td>
+                          <td>
+                            <div className="flex flex-col sm:flex-row gap-1">
+                              <button
+                                onClick={() => handlePrestataireVerification(prestataire.id, !prestataire.is_verified)}
+                                className={`btn btn-xs ${
+                                  prestataire.is_verified 
+                                    ? 'btn-warning' 
+                                    : 'btn-success'
+                                }`}
+                                title={prestataire.is_verified ? 'Dévérifier' : 'Vérifier'}
+                              >
+                                {prestataire.is_verified ? (
+                                  <>
+                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+                                    </svg>
+                                    <span className="hidden sm:inline">Dévérifier</span>
+                                  </>
+                                ) : (
+                                  <>
+                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
+                                    </svg>
+                                    <span className="hidden sm:inline">Vérifier</span>
+                                  </>
+                                )}
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
             </div>
           </div>
         )}
@@ -402,8 +544,8 @@ export default function AdminDashboard() {
                 <button className="btn-aroos-outline">Accéder</button>
               </Link>
               
-              <Link href="/admin/platform" className="card-hover p-6">
-                <h4 className="text-lg font-semibold mb-2">⚙️ Configuration Plateforme</h4>
+              <Link href="/admin/roles" className="card-hover p-6">
+                <h4 className="text-lg font-semibold mb-2">⚙️ Gestion des Roles</h4>
                 <p className="text-gray-600 mb-4">Paramètres, carrousel, contenu</p>
                 <button className="btn-aroos-outline">Accéder</button>
               </Link>
