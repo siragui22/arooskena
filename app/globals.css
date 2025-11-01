@@ -1,12 +1,12 @@
 @import "tailwindcss";
 
 @plugin "daisyui" {
-  themes: false;
+  themes: ["arooskena"];
 }
 
-/* Styles personnalisés pour Arooskena */
-
-/* Variables CSS personnalisées */
+/* ========================================
+   VARIABLES CSS PERSONNALISÉES
+   ======================================== */
 :root {
   --aroos-pink: #FF69B4;
   --aroos-pink-dark: #FF1493;
@@ -17,14 +17,25 @@
   --aroos-shadow-hover: 0 15px 35px rgba(255, 105, 180, 0.25);
 }
 
-/* Styles de base */
+/* ========================================
+   STYLES DE BASE
+   ======================================== */
 body {
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
   min-height: 100vh;
 }
 
-/* Animations personnalisées */
+#root {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 2rem;
+  text-align: center;
+}
+
+/* ========================================
+   ANIMATIONS
+   ======================================== */
 @keyframes fadeInUp {
   from {
     opacity: 0;
@@ -56,7 +67,35 @@ body {
   }
 }
 
-/* Classes utilitaires */
+@keyframes logo-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* ========================================
+   CLASSES UTILITAIRES D'ANIMATION
+   ======================================== */
 .animate-fade-in-up {
   animation: fadeInUp 0.6s ease-out;
 }
@@ -69,7 +108,47 @@ body {
   animation: pulse 2s infinite;
 }
 
-/* Styles pour les cartes */
+.animate-fade-in {
+  animation: fadeIn 0.3s ease-out;
+}
+
+/* ========================================
+   STYLES POUR LES LOGOS ET ICÔNES
+   ======================================== */
+.logo {
+  height: 6em;
+  padding: 1.5em;
+  will-change: filter;
+  transition: filter 300ms;
+}
+
+.logo:hover {
+  filter: drop-shadow(0 0 2em #646cffaa);
+}
+
+.logo.react:hover {
+  filter: drop-shadow(0 0 2em #61dafbaa);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  a:nth-of-type(2) .logo {
+    animation: logo-spin infinite 20s linear;
+  }
+}
+
+.icon-aroos {
+  color: var(--aroos-pink);
+  font-size: 1.5rem;
+  margin-bottom: 1rem;
+}
+
+/* ========================================
+   STYLES POUR LES CARTES
+   ======================================== */
+.card {
+  padding: 2em;
+}
+
 .card-hover {
   transition: all 0.3s ease;
   border: 1px solid rgba(255, 105, 180, 0.1);
@@ -81,7 +160,38 @@ body {
   border-color: rgba(255, 105, 180, 0.3);
 }
 
-/* Styles pour les boutons */
+.profile-card {
+  background: white;
+  border-radius: 1rem;
+  padding: 2rem;
+  box-shadow: var(--aroos-shadow);
+  border: 1px solid rgba(255, 105, 180, 0.1);
+  text-align: center;
+  transition: all 0.3s ease;
+}
+
+.profile-card:hover {
+  transform: translateY(-5px);
+  box-shadow: var(--aroos-shadow-hover);
+}
+
+.profile-avatar {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  background: var(--aroos-gradient);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 1rem;
+  color: white;
+  font-size: 2rem;
+  font-weight: bold;
+}
+
+/* ========================================
+   STYLES POUR LES BOUTONS
+   ======================================== */
 .btn-aroos {
   background: var(--aroos-gradient);
   border: none;
@@ -113,7 +223,9 @@ body {
   box-shadow: var(--aroos-shadow);
 }
 
-/* Styles pour les inputs */
+/* ========================================
+   STYLES POUR LES INPUTS ET FORMULAIRES
+   ======================================== */
 .input-aroos {
   border: 2px solid rgba(255, 105, 180, 0.2);
   transition: all 0.3s ease;
@@ -126,7 +238,6 @@ body {
   outline: none;
 }
 
-/* Styles pour les checkboxes */
 .checkbox-aroos {
   accent-color: var(--aroos-pink);
   width: 1.25rem;
@@ -147,7 +258,28 @@ body {
   outline: none;
 }
 
-/* Styles pour les badges */
+.form-aroos {
+  background: white;
+  border-radius: 1rem;
+  padding: 2rem;
+  box-shadow: var(--aroos-shadow);
+  border: 1px solid rgba(255, 105, 180, 0.1);
+}
+
+.form-aroos .form-control {
+  margin-bottom: 1.5rem;
+}
+
+.form-aroos label {
+  color: #374151;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  display: block;
+}
+
+/* ========================================
+   STYLES POUR LES BADGES ET NOTIFICATIONS
+   ======================================== */
 .badge-aroos {
   background: var(--aroos-gradient);
   color: white;
@@ -157,7 +289,18 @@ body {
   font-size: 0.875rem;
 }
 
-/* Styles pour les statistiques */
+.notification-aroos {
+  background: white;
+  border-left: 4px solid var(--aroos-pink);
+  border-radius: 0.5rem;
+  padding: 1rem;
+  box-shadow: var(--aroos-shadow);
+  margin-bottom: 1rem;
+}
+
+/* ========================================
+   STYLES POUR LES STATISTIQUES ET COMPTEURS
+   ======================================== */
 .stat-aroos {
   background: white;
   border-radius: 1rem;
@@ -172,7 +315,34 @@ body {
   box-shadow: var(--aroos-shadow-hover);
 }
 
-/* Styles pour les headers */
+.counter-aroos {
+  text-align: center;
+  padding: 2rem;
+  background: white;
+  border-radius: 1rem;
+  box-shadow: var(--aroos-shadow);
+  border: 1px solid rgba(255, 105, 180, 0.1);
+  transition: all 0.3s ease;
+}
+
+.counter-aroos:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--aroos-shadow-hover);
+}
+
+.counter-aroos-number {
+  font-size: 3rem;
+  font-weight: bold;
+  background: var(--aroos-gradient);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin-bottom: 0.5rem;
+}
+
+/* ========================================
+   STYLES POUR LES SECTIONS ET HEADERS
+   ======================================== */
 .header-aroos {
   background: white;
   border-radius: 1rem;
@@ -182,7 +352,6 @@ body {
   margin-bottom: 2rem;
 }
 
-/* Styles pour les sections */
 .section-aroos {
   background: white;
   border-radius: 1rem;
@@ -196,14 +365,9 @@ body {
   box-shadow: var(--aroos-shadow-hover);
 }
 
-/* Styles pour les icônes */
-.icon-aroos {
-  color: var(--aroos-pink);
-  font-size: 1.5rem;
-  margin-bottom: 1rem;
-}
-
-/* Styles pour les progress bars */
+/* ========================================
+   STYLES POUR LES PROGRESS BARS
+   ======================================== */
 .progress-aroos {
   background: rgba(255, 105, 180, 0.1);
   border-radius: 9999px;
@@ -216,7 +380,9 @@ body {
   transition: width 0.6s ease;
 }
 
-/* Styles pour les tooltips */
+/* ========================================
+   STYLES POUR LES TOOLTIPS
+   ======================================== */
 .tooltip-aroos {
   position: relative;
   cursor: help;
@@ -244,7 +410,9 @@ body {
   opacity: 1;
 }
 
-/* Styles pour les modales */
+/* ========================================
+   STYLES POUR LES MODALES
+   ======================================== */
 .modal-aroos {
   background: white;
   border-radius: 1rem;
@@ -252,7 +420,9 @@ body {
   border: 1px solid rgba(255, 105, 180, 0.1);
 }
 
-/* Styles pour les tableaux */
+/* ========================================
+   STYLES POUR LES TABLEAUX
+   ======================================== */
 .table-aroos {
   background: white;
   border-radius: 1rem;
@@ -276,37 +446,9 @@ body {
   background: rgba(255, 105, 180, 0.05);
 }
 
-/* Styles pour les formulaires */
-.form-aroos {
-  background: white;
-  border-radius: 1rem;
-  padding: 2rem;
-  box-shadow: var(--aroos-shadow);
-  border: 1px solid rgba(255, 105, 180, 0.1);
-}
-
-.form-aroos .form-control {
-  margin-bottom: 1.5rem;
-}
-
-.form-aroos label {
-  color: #374151;
-  font-weight: 600;
-  margin-bottom: 0.5rem;
-  display: block;
-}
-
-/* Styles pour les notifications */
-.notification-aroos {
-  background: white;
-  border-left: 4px solid var(--aroos-pink);
-  border-radius: 0.5rem;
-  padding: 1rem;
-  box-shadow: var(--aroos-shadow);
-  margin-bottom: 1rem;
-}
-
-/* Styles pour les listes */
+/* ========================================
+   STYLES POUR LES LISTES
+   ======================================== */
 .list-aroos {
   background: white;
   border-radius: 1rem;
@@ -328,7 +470,9 @@ body {
   border-bottom: none;
 }
 
-/* Styles pour les graphiques */
+/* ========================================
+   STYLES POUR LES GRAPHIQUES
+   ======================================== */
 .chart-aroos {
   background: white;
   border-radius: 1rem;
@@ -337,7 +481,9 @@ body {
   border: 1px solid rgba(255, 105, 180, 0.1);
 }
 
-/* Styles pour les calendriers */
+/* ========================================
+   STYLES POUR LES CALENDRIERS
+   ======================================== */
 .calendar-aroos {
   background: white;
   border-radius: 1rem;
@@ -353,7 +499,9 @@ body {
   font-weight: 600;
 }
 
-/* Styles pour les timelines */
+/* ========================================
+   STYLES POUR LES TIMELINES
+   ======================================== */
 .timeline-aroos {
   position: relative;
   padding-left: 2rem;
@@ -388,63 +536,9 @@ body {
   box-shadow: var(--aroos-shadow);
 }
 
-/* Styles pour les cartes de profil */
-.profile-card {
-  background: white;
-  border-radius: 1rem;
-  padding: 2rem;
-  box-shadow: var(--aroos-shadow);
-  border: 1px solid rgba(255, 105, 180, 0.1);
-  text-align: center;
-  transition: all 0.3s ease;
-}
-
-.profile-card:hover {
-  transform: translateY(-5px);
-  box-shadow: var(--aroos-shadow-hover);
-}
-
-.profile-avatar {
-  width: 100px;
-  height: 100px;
-  border-radius: 50%;
-  background: var(--aroos-gradient);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin: 0 auto 1rem;
-  color: white;
-  font-size: 2rem;
-  font-weight: bold;
-}
-
-/* Styles pour les compteurs */
-.counter-aroos {
-  text-align: center;
-  padding: 2rem;
-  background: white;
-  border-radius: 1rem;
-  box-shadow: var(--aroos-shadow);
-  border: 1px solid rgba(255, 105, 180, 0.1);
-  transition: all 0.3s ease;
-}
-
-.counter-aroos:hover {
-  transform: translateY(-3px);
-  box-shadow: var(--aroos-shadow-hover);
-}
-
-.counter-aroos-number {
-  font-size: 3rem;
-  font-weight: bold;
-  background: var(--aroos-gradient);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  margin-bottom: 0.5rem;
-}
-
-/* Styles pour les états vides */
+/* ========================================
+   STYLES POUR LES ÉTATS VIDES
+   ======================================== */
 .empty-state {
   text-align: center;
   padding: 4rem 2rem;
@@ -457,7 +551,13 @@ body {
   opacity: 0.5;
 }
 
-/* Styles pour les loaders */
+.read-the-docs {
+  color: #888;
+}
+
+/* ========================================
+   STYLES POUR LES LOADERS
+   ======================================== */
 .loader-aroos {
   display: inline-block;
   width: 2rem;
@@ -466,15 +566,33 @@ body {
   border-radius: 50%;
   border-top-color: var(--aroos-pink);
   animation: spin 1s ease-in-out infinite;
+  will-change: transform;
 }
 
-@keyframes spin {
-  to {
-    transform: rotate(360deg);
-  }
+/* Optimisations de performance */
+.animate-spin {
+  will-change: transform;
 }
 
-/* Styles pour les responsive */
+.animate-fade-in-up {
+  will-change: transform, opacity;
+}
+
+.animate-slide-in-right {
+  will-change: transform, opacity;
+}
+
+/* Préchargement des transitions critiques */
+.card-hover,
+.btn-aroos,
+.btn-aroos-outline,
+.input-aroos {
+  will-change: transform, box-shadow;
+}
+
+/* ========================================
+   STYLES RESPONSIVE
+   ======================================== */
 @media (max-width: 768px) {
   .header-aroos {
     padding: 1.5rem;
@@ -493,36 +611,4 @@ body {
   }
 }
 
-/* Styles pour les thèmes sombres (optionnel) */
-@media (prefers-color-scheme: dark) {
-  :root {
-    --aroos-shadow: 0 10px 25px rgba(255, 105, 180, 0.25);
-    --aroos-shadow-hover: 0 15px 35px rgba(255, 105, 180, 0.35);
-  }
-  
-  body {
-    background: linear-gradient(135deg, #1f2937 0%, #111827 100%);
-    color: #f9fafb;
-  }
-  
-  .section-aroos,
-  .header-aroos,
-  .form-aroos,
-  .card-hover,
-  .stat-aroos,
-  .counter-aroos,
-  .profile-card {
-    background: #374151;
-    color: #f9fafb;
-  }
-  
-  .input-aroos {
-    background: #4b5563;
-    color: #f9fafb;
-    border-color: rgba(255, 105, 180, 0.3);
-  }
-  
-  .input-aroos:focus {
-    background: #4b5563;
-  }
-}
+

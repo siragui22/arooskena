@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabaseClient';
 import Link from 'next/link';
+import { Hash } from 'lucide-react';
 
 export default function AdminPlatform() {
   const [user, setUser] = useState(null);
@@ -13,7 +14,9 @@ export default function AdminPlatform() {
     totalMariages: 0,
     totalServices: 0,
     totalAvis: 0,
-    totalAbonnements: 0
+    totalAbonnements: 0,
+    totalTags: 0,
+    totalTagUsage: 0
   });
   const [activeTab, setActiveTab] = useState('carousel');
   const router = useRouter();
@@ -53,19 +56,24 @@ export default function AdminPlatform() {
   const loadData = async () => {
     try {
       // Charger les statistiques de la plateforme
-      const [mariages, services, avis, abonnements, carousel] = await Promise.all([
+      const [mariages, services, avis, abonnements, carousel, tags] = await Promise.all([
         supabase.from('mariages').select('id', { count: 'exact' }),
         supabase.from('services').select('id', { count: 'exact' }),
         supabase.from('avis').select('id', { count: 'exact' }),
         supabase.from('abonnements').select('id', { count: 'exact' }),
-        supabase.from('carousel_items').select('*').order('ordre', { ascending: true })
+        supabase.from('carousel_items').select('*').order('ordre', { ascending: true }),
+        supabase.from('tags').select('usage_count', { count: 'exact' })
       ]);
+
+      const totalUsageCount = tags.data ? tags.data.reduce((sum, tag) => sum + tag.usage_count, 0) : 0;
 
       setPlatformStats({
         totalMariages: mariages.count || 0,
         totalServices: services.count || 0,
         totalAvis: avis.count || 0,
-        totalAbonnements: abonnements.count || 0
+        totalAbonnements: abonnements.count || 0,
+        totalTags: tags.count || 0,
+        totalTagUsage: totalUsageCount
       });
 
       setCarouselItems(carousel.data || []);
@@ -330,7 +338,20 @@ export default function AdminPlatform() {
           <div className="section-aroos animate-fade-in-up">
             <h2 className="text-2xl font-bold text-gray-800 mb-6">Gestion du Contenu</h2>
             
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <Link href="/admin/tags" className="card-hover p-6 block">
+                <div className="flex items-center gap-3 mb-3">
+                  <Hash className="h-7 w-7 text-primary" />
+                  <div>
+                    <h3 className="text-lg font-semibold">Gérer les Tags</h3>
+                    <p className="text-sm text-gray-500">
+                      {platformStats.totalTags} tags · {platformStats.totalTagUsage} utilisations
+                    </p>
+                  </div>
+                </div>
+                <p className="text-gray-600 mb-4">Organisez le contenu avec des mots-clés.</p>
+              </Link>
+
               <div className="card-hover p-6">
                 <h3 className="text-lg font-semibold mb-4">📝 Blog</h3>
                 <p className="text-gray-600 mb-4">Gérez les articles du blog</p>

@@ -3,11 +3,13 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabaseClient';
+import { useAuth } from '@/contexts/AuthContext';
+import { cachedFetch } from '@/utils/cache';
+import LoadingSpinner from '@/components/LoadingSpinner';
 import Link from 'next/link';
 
 export default function PrestataireAnnuaire() {
-  const [user, setUser] = useState(null);
-  const [userData, setUserData] = useState(null);
+  const { user, userData, loading: authLoading, initialized } = useAuth();
   const [prestataire, setPrestataire] = useState(null);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);

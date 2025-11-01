@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabaseClient";
 import Link from "next/link";
+import { Users, ArrowLeft, Search, Download, Edit2, X, Save, Camera, Trash2, CheckCircle } from 'lucide-react';
 
 export default function AdminUsers() {
   const [user, setUser] = useState(null);
@@ -24,15 +25,9 @@ export default function AdminUsers() {
   });
   const [newAvatar, setNewAvatar] = useState(null);
   const [roles, setRoles] = useState([]);
-  const [isClient, setIsClient] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
-    setIsClient(true);
-  }, []);
-
-  useEffect(() => {
-    if (!isClient) return;
     
     const checkAdmin = async () => {
       const {
@@ -68,7 +63,7 @@ export default function AdminUsers() {
     };
 
     checkAdmin();
-  }, [router, isClient]);
+  }, [router]);
 
   const loadUsers = async () => {
     try {
@@ -429,48 +424,57 @@ export default function AdminUsers() {
   }
 
   return (
-         <div className="min-h-screen bg-gradient-to-br from-pink-50 to-purple-50">
-      <div className="container mx-auto px-4 py-8">
-        {/* Header */}
-        <div className="header-aroos animate-fade-in-up">
-          <div className="flex items-center justify-between">
+    <div className="min-h-screen bg-pink-50">
+      <div className="max-w-7xl mx-auto px-3 sm:px-4 md:px-6 lg:px-8 py-4 sm:py-6 lg:py-8">
+        {/* Header moderne */}
+        <div className="mb-6 sm:mb-8">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div>
-              <h1 className="text-4xl font-bold bg-gradient-to-r from-pink-500 to-purple-600 bg-clip-text text-transparent mb-2">
-                👥 Gestion des Utilisateurs
-              </h1>
-              <p className="text-gray-600 text-lg"> 
-                Gérez les utilisateurs de la plateforme Arooskena
+              <div className="flex items-center gap-3 mb-2">
+                <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-r from-blue-400 to-blue-500 rounded-xl flex items-center justify-center">
+                  <Users className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
+                </div>
+                <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900">
+                  Gestion des Utilisateurs
+                </h1>
+              </div>
+              <p className="text-sm sm:text-base text-gray-600 ml-0 sm:ml-14">
+                Gérez tous les utilisateurs de la plateforme
               </p>
             </div>
-                                                   <Link href="/admin" className="btn-aroos-outline">
-                ← Retour à l'Admin
-              </Link>
+            <Link href="/admin" className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-all text-sm sm:text-base font-medium text-gray-700">
+              <ArrowLeft className="w-4 h-4" />
+              Retour
+            </Link>
           </div>
         </div>
 
-                {/* Filtres et recherche */}
-        <div className="section-aroos mb-8 animate-fade-in-up">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+        {/* Filtres et stats */}
+        <div className="bg-white rounded-xl sm:rounded-2xl p-4 sm:p-6 border border-gray-100 mb-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div className="relative">
+              <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-2">
                 Recherche
               </label>
-              <input
-                type="text"
-                placeholder="Email, nom..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="input-aroos w-full"
-              />
+              <div className="relative">
+                <input
+                  type="text"
+                  placeholder="Email, nom..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="w-full px-4 py-2.5 pl-10 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-300 text-sm"
+                />
+                <Search className="w-4 h-4 text-gray-400 absolute left-3 top-1/2 transform -translate-y-1/2" />
+              </div>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-2">
                 Rôle
               </label>
               <select
                 value={roleFilter}
                 onChange={(e) => setRoleFilter(e.target.value)}
-                className="input-aroos w-full"
+                className="w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-300 text-sm"
               >
                 <option value="all">Tous les rôles</option>
                 {roles.map((role) => (
@@ -481,219 +485,203 @@ export default function AdminUsers() {
               </select>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-2">
                 Statut
               </label>
               <select
                 value={statusFilter}
                 onChange={(e) => setStatusFilter(e.target.value)}
-                className="input-aroos w-full"
+                className="w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-300 text-sm"
               >
-                <option value="all">Tous les statuts</option>
+                <option value="all">Tous</option>
                 <option value="active">Actifs</option>
                 <option value="inactive">Inactifs</option>
               </select>
             </div>
-            <div className="flex items-end">
-              <div className="stat-aroos w-full">
-                <div className="text-2xl font-bold text-gray-800">
+            <div className="flex flex-col justify-end">
+              <div className="bg-gradient-to-r from-pink-50 to-orange-50 rounded-lg p-4 border border-pink-200">
+                <div className="text-2xl sm:text-3xl font-bold text-gray-900">
                   {filteredUsers.length}
                 </div>
-                <div className="text-gray-600">Utilisateurs</div>
+                <div className="text-xs sm:text-sm text-gray-600 font-medium">Utilisateurs</div>
               </div>
             </div>
           </div>
         </div>
 
-        {/* Liste des utilisateurs */}
-        <div className="section-aroos animate-fade-in-up">
+        {/* Tableau moderne */}
+        <div className="bg-white rounded-xl sm:rounded-2xl border border-gray-100 overflow-hidden">
           <div className="overflow-x-auto">
-            <table className="table">
-              {/* head */}
-              <thead>
+            <table className="w-full">
+              <thead className="bg-gray-50 border-b border-gray-200">
                 <tr>
-                  <th>
-                    <label>
-                      <input type="checkbox" className="checkbox" />
-                    </label>
-                  </th>
-                  <th>Utilisateur</th>
-                  <th>Email</th>
-                  <th>Téléphone</th>
-                  <th>Rôle</th>
-                  <th>Statut</th>
-                  <th>Date d'inscription</th>
-                  <th>Actions</th>
+                  <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Utilisateur</th>
+                  <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Email</th>
+                  <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Téléphone</th>
+                  <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Rôle</th>
+                  <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Statut</th>
+                  <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Date</th>
+                  <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Actions</th>
                 </tr>
               </thead>
-              <tbody>
+              <tbody className="divide-y divide-gray-200">
                 {filteredUsers.map((user) => (
-                  <tr key={user.id}>
-                    <th>
-                      <label>
-                        <input type="checkbox" className="checkbox" />
-                      </label>
-                    </th>
-                                         <td>
+                  <tr key={user.id} className="hover:bg-gray-50 transition-colors">
+                    <td className="px-4 py-3">
                        <div className="flex items-center gap-3">
-                         <div className="avatar">
                            {user.profiles?.[0]?.avatar ? (
-                             <div className="mask mask-squircle h-12 w-12">
-                               <img 
-                                 src={`${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/profil_avatars/${user.profiles[0].avatar}`}
-                                 alt="Avatar"
-                                 className="w-full h-full object-cover"
-                               />
-                             </div>
+                             <img 
+                               src={`${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/profil_avatars/${user.profiles[0].avatar}`}
+                               alt="Avatar"
+                               className="w-10 h-10 rounded-full object-cover"
+                             />
                            ) : (
-                             <div className="mask mask-squircle h-12 w-12 bg-gradient-to-r from-pink-500 to-purple-600 text-white flex items-center justify-center font-bold text-lg">
-                               {user.profiles?.[0]?.first_name?.charAt(0) ||
-                                 user.email?.charAt(0)}
+                             <div className="w-10 h-10 bg-gradient-to-r from-pink-500 to-purple-600 text-white flex items-center justify-center font-bold rounded-full">
+                               {user.profiles?.[0]?.first_name?.charAt(0) || user.email?.charAt(0)}
                              </div>
                            )}
-                         </div>
                          <div>
-                           <div className="font-bold">
+                           <div className="font-medium text-gray-900 text-sm">
                              {user.profiles?.[0]?.first_name} {user.profiles?.[0]?.last_name}
                            </div>
-                           <div className="text-sm opacity-50">
-                             {user.profiles?.[0]?.first_name ? "" : "Sans profil"}
-                           </div>
+                           {!user.profiles?.[0]?.first_name && (
+                             <div className="text-xs text-gray-500">Sans profil</div>
+                           )}
                          </div>
                        </div>
                      </td>
-                    <td >{user.email}</td>
-                    <td >
-                      {user.phone || "N/A"}
-                      <br />
+                    <td className="px-4 py-3">
+                      <span className="text-sm text-gray-900">{user.email}</span>
                     </td>
-                    
-                                         <td>
-                       <div className="flex items-center gap-2">
-                         <span className={`badge ${
-                           user.roles?.name === 'admin' ? 'badge-error' :
-                           user.roles?.name === 'prestataire' ? 'badge-warning' :
-                           user.roles?.name === 'couple' ? 'badge-info' :
-                           'badge-ghost'
+                    <td className="px-4 py-3">
+                      <span className="text-sm text-gray-600">{user.phone || "N/A"}</span>
+                    </td>
+                    <td className="px-4 py-3">
+                         <span className={`px-2.5 py-1 text-xs font-medium rounded-full ${
+                           user.roles?.name === 'admin' ? 'bg-red-100 text-red-700' :
+                           user.roles?.name === 'prestataire' ? 'bg-blue-100 text-blue-700' :
+                           user.roles?.name === 'couple' ? 'bg-purple-100 text-purple-700' :
+                           'bg-gray-100 text-gray-700'
                          }`}>
                            {user.roles?.label || "Aucun rôle"}
                          </span>
-                       </div>
                      </td>
-                                         <td>
-                       <span className={`badge-aroos ${
-                         user.is_active ? "bg-green-500" : "bg-red-500"
+                    <td className="px-4 py-3">
+                       <span className={`px-2.5 py-1 text-xs font-medium rounded-full ${
+                         user.is_active ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"
                        }`}>
                          {user.is_active ? "Actif" : "Inactif"}
                        </span>
                      </td>
-                    <td>
-                      {isClient 
-                        ? new Date(user.created_at).toLocaleDateString("fr-FR")
-                        : user.created_at
-                      }
+                    <td className="px-4 py-3">
+                      <span className="text-sm text-gray-600">
+                        {new Date(user.created_at).toLocaleDateString("fr-FR")}
+                      </span>
                     </td>
-                                         <td>
-                       <div className="flex space-x-2">
+                    <td className="px-4 py-3">
+                       <div className="flex gap-2">
                          <button
-                           onClick={() =>
-                             handleUserStatusChange(user.id, !user.is_active)
-                           }
-                           className={`btn btn-xs ${
-                             user.is_active ? "btn-error" : "btn-success"
+                           onClick={() => handleUserStatusChange(user.id, !user.is_active)}
+                           className={`px-3 py-1.5 text-xs font-medium rounded-lg transition-colors ${
+                             user.is_active 
+                               ? "bg-red-100 text-red-700 hover:bg-red-200" 
+                               : "bg-green-100 text-green-700 hover:bg-green-200"
                            }`}
                          >
                            {user.is_active ? "Désactiver" : "Activer"}
                          </button>
                          <button 
                            onClick={() => handleEditUser(user)}
-                           className="btn-aroos-outline btn-xs"
+                           className="px-3 py-1.5 text-xs font-medium bg-blue-100 text-blue-700 hover:bg-blue-200 rounded-lg transition-colors flex items-center gap-1"
                          >
-                           ✏️ Modifier
+                           <Edit2 className="w-3 h-3" />
+                           Modifier
                          </button>
                        </div>
                      </td>
                   </tr>
                 ))}
               </tbody>
-              {/* foot */}
-  
             </table>
           </div>
-
+          
           {filteredUsers.length === 0 && (
-            <div className="empty-state text-center py-8">
-              <div className="empty-state-icon">👥</div>
-              <p className="text-gray-600 mb-4">Aucun utilisateur trouvé</p>
+            <div className="text-center py-12">
+              <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Users className="w-8 h-8 text-gray-400" />
+              </div>
+              <p className="text-gray-600 font-medium">Aucun utilisateur trouvé</p>
+              <p className="text-sm text-gray-500 mt-1">Essayez d'ajuster vos filtres de recherche</p>
             </div>
           )}
         </div>
       </div>
 
-             {/* Modal d'édition */}
+             {/* Modal moderne d'édition */}
        {showEditModal && (
-         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-           <div className="bg-white rounded-lg p-6 w-full max-w-md mx-4">
-             <div className="flex items-center justify-between mb-4">
-               <h3 className="text-lg font-semibold text-gray-900">
-                 Modifier l'utilisateur
-               </h3>
+         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+           <div className="bg-white rounded-xl sm:rounded-2xl p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+             <div className="flex items-center justify-between mb-6">
+               <div className="flex items-center gap-3">
+                 <div className="w-10 h-10 bg-gradient-to-r from-blue-400 to-blue-500 rounded-lg flex items-center justify-center">
+                   <Edit2 className="w-5 h-5 text-white" />
+                 </div>
+                 <h3 className="text-xl font-bold text-gray-900">
+                   Modifier l'utilisateur
+                 </h3>
+               </div>
                <button
                  onClick={() => setShowEditModal(false)}
-                 className="text-gray-400 hover:text-gray-600"
+                 className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
                >
-                 ✕
+                 <X className="w-5 h-5 text-gray-500" />
                </button>
              </div>
 
             <div className="space-y-4">
-                             <div>
-                 <label className="block text-sm font-medium text-gray-700 mb-1">
+               <div>
+                 <label className="block text-sm font-medium text-gray-700 mb-2">
                    Email (non modifiable)
                  </label>
                  <input
                    type="email"
                    value={editForm.email}
                    disabled
-                   className="input-aroos w-full bg-gray-100"
+                   className="w-full px-4 py-2.5 border border-gray-200 rounded-lg bg-gray-50 text-gray-500 cursor-not-allowed"
                  />
                </div>
 
                <div>
-                 <label className="block text-sm font-medium text-gray-700 mb-1">
+                 <label className="block text-sm font-medium text-gray-700 mb-2">
                    Avatar
                  </label>
                  <div className="flex items-center gap-4">
-                   <div className="avatar">
                      {editingUser?.profiles?.[0]?.avatar ? (
-                       <div className="mask mask-squircle h-16 w-16">
-                         <img 
-                           src={`${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/profil_avatars/${editingUser.profiles[0].avatar}`}
-                           alt="Avatar actuel"
-                           className="w-full h-full object-cover"
-                         />
-                       </div>
+                       <img 
+                         src={`${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/profil_avatars/${editingUser.profiles[0].avatar}`}
+                         alt="Avatar actuel"
+                         className="w-16 h-16 rounded-full object-cover"
+                       />
                      ) : (
-                       <div className="mask mask-squircle h-16 w-16 bg-gradient-to-r from-pink-500 to-purple-600 text-white flex items-center justify-center font-bold text-xl">
-                         {editingUser?.profiles?.[0]?.first_name?.charAt(0) ||
-                           editingUser?.email?.charAt(0)}
+                       <div className="w-16 h-16 bg-gradient-to-r from-pink-500 to-purple-600 text-white flex items-center justify-center font-bold text-xl rounded-full">
+                         {editingUser?.profiles?.[0]?.first_name?.charAt(0) || editingUser?.email?.charAt(0)}
                        </div>
                      )}
-                   </div>
-                   <div className="flex flex-col gap-2">
+                   <div className="flex-1 flex flex-col gap-2">
                      <input
                        type="file"
                        accept="image/*"
                        onChange={(e) => handleAvatarChange(e)}
-                       className="file-input file-input-bordered w-full max-w-xs"
+                       className="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-pink-50 file:text-pink-700 hover:file:bg-pink-100"
                      />
                      {editingUser?.profiles?.[0]?.avatar && (
                        <button
                          type="button"
                          onClick={() => handleAvatarDelete()}
-                         className="btn btn-error btn-xs"
+                         className="flex items-center gap-1 px-3 py-1.5 bg-red-100 text-red-700 hover:bg-red-200 rounded-lg text-xs font-medium transition-colors w-fit"
                        >
-                         🗑️ Supprimer l'avatar
+                         <Trash2 className="w-3 h-3" />
+                         Supprimer
                        </button>
                      )}
                    </div>
@@ -701,54 +689,54 @@ export default function AdminUsers() {
                </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
                   Téléphone
                 </label>
                 <input
                   type="tel"
                   value={editForm.phone}
                   onChange={(e) => setEditForm({...editForm, phone: e.target.value})}
-                  className="input-aroos w-full"
+                  className="w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-300"
                   placeholder="+33 6 12 34 56 78"
                 />
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
                     Prénom
                   </label>
                   <input
                     type="text"
                     value={editForm.first_name}
                     onChange={(e) => setEditForm({...editForm, first_name: e.target.value})}
-                    className="input-aroos w-full"
+                    className="w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-300"
                     placeholder="Prénom"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
                     Nom
                   </label>
                   <input
                     type="text"
                     value={editForm.last_name}
                     onChange={(e) => setEditForm({...editForm, last_name: e.target.value})}
-                    className="input-aroos w-full"
+                    className="w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-300"
                     placeholder="Nom"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
                   Rôle
                 </label>
                 <select
                   value={editForm.role_id}
                   onChange={(e) => setEditForm({...editForm, role_id: e.target.value})}
-                  className="input-aroos w-full"
+                  className="w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-300"
                 >
                   <option value="">Sélectionner un rôle</option>
                   {roles.map((role) => (
@@ -759,32 +747,33 @@ export default function AdminUsers() {
                 </select>
               </div>
 
-              <div>
-                <label className="flex items-center">
-                  <input
-                    type="checkbox"
-                    checked={editForm.is_active}
-                    onChange={(e) => setEditForm({...editForm, is_active: e.target.checked})}
-                    className="mr-2"
-                  />
-                  <span className="text-sm font-medium text-gray-700">
-                    Utilisateur actif
-                  </span>
+              <div className="flex items-center p-4 bg-gray-50 rounded-lg">
+                <input
+                  type="checkbox"
+                  checked={editForm.is_active}
+                  onChange={(e) => setEditForm({...editForm, is_active: e.target.checked})}
+                  className="w-4 h-4 text-pink-600 border-gray-300 rounded focus:ring-pink-300"
+                  id="is_active"
+                />
+                <label htmlFor="is_active" className="ml-3 text-sm font-medium text-gray-700 cursor-pointer flex items-center gap-2">
+                  <CheckCircle className="w-4 h-4 text-green-600" />
+                  Utilisateur actif
                 </label>
               </div>
             </div>
 
-                         <div className="flex justify-end space-x-3 mt-6">
+            <div className="flex justify-end gap-3 mt-6 pt-6 border-t border-gray-200">
                <button
                  onClick={() => setShowEditModal(false)}
-                 className="btn-aroos-outline"
+                 className="px-4 py-2.5 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors text-sm font-medium text-gray-700"
                >
                  Annuler
                </button>
                <button
                  onClick={handleUpdateUser}
-                 className="btn-aroos"
+                 className="px-4 py-2.5 bg-gradient-to-r from-pink-400 to-orange-300 text-white rounded-lg hover:shadow-lg transition-all text-sm font-medium flex items-center gap-2"
                >
+                 <Save className="w-4 h-4" />
                  Sauvegarder
                </button>
              </div>

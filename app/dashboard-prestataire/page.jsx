@@ -3,10 +3,12 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabaseClient';
+import { useAuth } from '@/contexts/AuthContext';
+import LoadingSpinner from '@/components/LoadingSpinner';
 import Link from 'next/link';
 
 export default function PrestataireDashboard() {
-  const [user, setUser] = useState(null);
+  const { user, userData, loading: authLoading, initialized } = useAuth();
   const [prestataire, setPrestataire] = useState(null);
   const [loading, setLoading] = useState(true);
   const [stats, setStats] = useState({
@@ -21,45 +23,30 @@ export default function PrestataireDashboard() {
   const router = useRouter();
 
   useEffect(() => {
-    const checkPrestataire = async () => {
-      const { data: { user } } = await supabase.auth.getUser();
+    const loadPrestataireDashboard = async () => {
+      // Attendre que l'authentification soit initialisée
+      if (!initialized) return;
       
       if (!user) {
         router.push('/sign-in');
         return;
       }
 
-      // Vérifier si l'utilisateur est prestataire
-      const { data: userData } = await supabase
-        .from('users')
-        .select(`
-          *,
-          roles(name, label)
-        `)
-        .eq('auth_user_id', user.id)
-        .single();
-
       if (!userData || userData.roles?.name !== 'prestataire') {
         router.push('/dashboard');
         return;
       }
 
-      setUser(user);
       await loadData();
       setLoading(false);
     };
 
-    checkPrestataire();
-  }, [router]);
+    loadPrestataireDashboard();
+  }, [initialized, user, userData, router]);
 
   const loadData = async () => {
     try {
-      // Récupérer les données du prestataire
-      const { data: userData } = await supabase
-        .from('users')
-        .select('id')
-        .eq('auth_user_id', user.id)
-        .single();
+      // Utiliser les données du contexte d'authentification
 
       if (userData) {
         const { data: prestataireData } = await supabase
@@ -126,11 +113,13 @@ export default function PrestataireDashboard() {
     }
   };
 
-  if (loading) {
+  if (authLoading || loading) {
     return (
-      <div className="flex min-h-screen items-center justify-center">
-        <div className="loader-aroos"></div>
-      </div>
+      <LoadingSpinner 
+        fullScreen={true} 
+        size="lg" 
+        text="Chargement de votre espace prestataire..." 
+      />
     );
   }
 

@@ -3,14 +3,18 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabaseClient';
+import { useAuth } from '@/contexts/AuthContext';
+import LoadingSpinner from '@/components/LoadingSpinner';
+import UserHeader from '@/components/dashboard/UserHeader';
+import AnnuairesSection from '@/components/dashboard/AnnuairesSection';
 import Link from 'next/link';
 
 export default function DashboardPage() {
-  const [user, setUser] = useState(null);
-  const [userData, setUserData] = useState(null);
+  const { user, userData, loading: authLoading } = useAuth();
   const [profile, setProfile] = useState(null);
   const [mariage, setMariage] = useState(null);
   const [prestataire, setPrestataire] = useState(null);
+  const [lieuReception, setLieuReception] = useState(null);
   const [loading, setLoading] = useState(true);
   const [stats, setStats] = useState({
     taches: 0,
@@ -18,30 +22,21 @@ export default function DashboardPage() {
     invites: 0,
     favoris: 0
   });
+  const [annuaires, setAnnuaires] = useState({
+    prestataires: [],
+    lieux: []
+  });
   const router = useRouter();
 
   useEffect(() => {
-    const checkUser = async () => {
-      const { data: { user } } = await supabase.auth.getUser();
+    const loadDashboardData = async () => {
+      // Attendre que l'authentification soit initialisée
+      if (authLoading) return;
       
       if (!user) {
         router.push('/sign-in');
         return;
       }
-
-      setUser(user);
-
-      // Récupérer le profil utilisateur avec le rôle
-      const { data: userData } = await supabase
-        .from('users')
-        .select(`
-          *,
-          roles(name, label)
-        `)
-        .eq('auth_user_id', user.id)
-        .single();
-
-      setUserData(userData);
 
       if (userData) {
         const { data: profileData } = await supabase
@@ -81,15 +76,37 @@ export default function DashboardPage() {
 
         setMariage(mariageData);
 
-        // Si l'utilisateur est prestataire, charger ses données
-        if (userData.roles?.name === 'prestataire') {
-          const { data: prestataireData } = await supabase
+        // Charger les annuaires selon le rôle
+        if (['prestataire', 'entreprise', 'admin'].includes(userData.roles?.name)) {
+          // Charger les prestataires
+          const { data: prestatairesData } = await supabase
             .from('prestataires')
-            .select('*')
-            .eq('user_id', userData.id)
-            .single();
+            .select(`
+              *,
+              categories(name, label),
+              subscription_types(name, price)
+            `)
+            .eq('user_id', userData.id);
 
-          setPrestataire(prestataireData);
+          setAnnuaires(prev => ({ ...prev, prestataires: prestatairesData || [] }));
+          if (prestatairesData && prestatairesData.length > 0) {
+            setPrestataire(prestatairesData[0]);
+          }
+
+          // Charger les lieux de réception
+          const { data: lieuxData } = await supabase
+            .from('lieux_reception')
+            .select(`
+              *,
+              lieu_types(name, label),
+              lieu_subscription_types(name, price)
+            `)
+            .eq('user_id', userData.id);
+
+          setAnnuaires(prev => ({ ...prev, lieux: lieuxData || [] }));
+          if (lieuxData && lieuxData.length > 0) {
+            setLieuReception(lieuxData[0]);
+          }
         }
 
         // Récupérer les statistiques
@@ -121,14 +138,16 @@ export default function DashboardPage() {
       setLoading(false);
     };
 
-    checkUser();
-  }, [router]);
+    loadDashboardData();
+  }, [authLoading, user, userData, router]);
 
-  if (loading) {
+  if (authLoading || loading) {
     return (
-      <div className="flex min-h-screen items-center justify-center">
-        <div className="loader-aroos"></div>
-      </div>
+      <LoadingSpinner 
+        fullScreen={true} 
+        size="lg" 
+        text="Chargement de votre dashboard..." 
+      />
     );
   }
 
@@ -146,44 +165,8 @@ export default function DashboardPage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-pink-50 to-purple-50">
       <div className="container mx-auto px-4 py-8">
-        {/* Header avec animation */}
-        <div className="header-aroos animate-fade-in-up">
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-4xl font-bold bg-gradient-to-r from-pink-500 to-purple-600 bg-clip-text text-transparent mb-2">
-                Bienvenue, {profile?.first_name || user?.email?.split('@')[0]} !
-              </h1>
-              <p className="text-gray-600 text-lg">
-                Gérez votre mariage de rêve avec Arooskena
-              </p>
-            </div>
-            <div className="flex items-center gap-4">
-              <div className="avatar">
-                {profile?.avatar ? (
-                  <div className="mask mask-squircle h-16 w-16">
-                    <img 
-                      src={`${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/avatars/${profile.avatar}`}
-                      alt="Avatar"
-                      className="w-full h-full object-cover"
-                    />
-                  </div>
-                ) : (
-                  <div className="mask mask-squircle h-16 w-16 bg-gradient-to-r from-pink-500 to-purple-600 text-white flex items-center justify-center font-bold text-xl">
-                    {(profile?.first_name || user?.email?.charAt(0) || 'U').toUpperCase()}
-                  </div>
-                )}
-              </div>
-              <div className="text-right">
-                <h3 className="font-semibold text-gray-800">
-                  {profile?.first_name ? `${profile.first_name} ${profile.last_name || ''}` : 'Utilisateur'}
-                </h3>
-                <Link href="/dashboard/profile" className="btn-aroos-outline btn-sm">
-                  ✏️ Modifier mon profil
-                </Link>
-              </div>
-            </div>
-          </div>
-        </div>
+        {/* Header utilisateur */}
+        <UserHeader user={user} userData={userData} profile={profile} />
 
         {/* Compte à rebours si mariage créé */}
         {mariage && daysUntilWedding !== null && (
@@ -200,74 +183,21 @@ export default function DashboardPage() {
           </div>
         )}
 
-        {/* Statistiques */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          <div className="stat-aroos animate-fade-in-up" style={{ animationDelay: '0.1s' }}>
-            <div className="icon-aroos">📋</div>
-            <div className="text-2xl font-bold text-gray-800">{stats.taches}</div>
-            <div className="text-gray-600">Tâches</div>
-          </div>
-          
-          <div className="stat-aroos animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
-            <div className="icon-aroos">💰</div>
-            <div className="text-2xl font-bold text-gray-800">{stats.budget}€</div>
-            <div className="text-gray-600">Budget</div>
-          </div>
-          
-          <div className="stat-aroos animate-fade-in-up" style={{ animationDelay: '0.3s' }}>
-            <div className="icon-aroos">👥</div>
-            <div className="text-2xl font-bold text-gray-800">{stats.invites}</div>
-            <div className="text-gray-600">Invités</div>
-          </div>
-          
-          <div className="stat-aroos animate-fade-in-up" style={{ animationDelay: '0.4s' }}>
-            <div className="icon-aroos">❤️</div>
-            <div className="text-2xl font-bold text-gray-800">{stats.favoris}</div>
-            <div className="text-gray-600">Favoris</div>
-          </div>
-        </div>
 
-        {/* Section spéciale pour les prestataires */}
-        {userData?.roles?.name === 'prestataire' && (
-          <div className="section-aroos mb-8 bg-gradient-to-r from-blue-50 to-indigo-50 border-2 border-blue-200">
-            <div className="flex items-center justify-between">
-              <div>
-                <h2 className="text-2xl font-bold text-blue-800 mb-2 flex items-center">
-                  <span className="icon-aroos mr-3">🏢</span>
-                  Mon Annuaire d'Entreprise
-                </h2>
-                {prestataire ? (
-                  <div>
-                    <p className="text-blue-700 mb-2">
-                      <strong>{prestataire.nom_entreprise}</strong> - Votre annuaire est actif
-                    </p>
-                    <div className="flex items-center gap-2">
-                      <span className={`badge-aroos ${prestataire.is_verified ? 'bg-green-500' : 'bg-yellow-500'}`}>
-                        {prestataire.is_verified ? '✅ Vérifié' : '⏳ En attente de vérification'}
-                      </span>
-                      {prestataire.is_featured && (
-                        <span className="badge-aroos bg-purple-500">⭐ En vedette</span>
-                      )}
-                    </div>
-                  </div>
-                ) : (
-                  <p className="text-blue-700">
-                    Créez votre annuaire pour apparaître dans notre plateforme et attirer de nouveaux clients
-                  </p>
-                )}
-              </div>
-              <Link href={prestataire ? "/prestataires" : "/prestataires/setup"} className="btn-aroos">
-                {prestataire ? '✏️ Gérer mon annuaire' : '➕ Créer mon annuaire'}
-              </Link>
-            </div>
-          </div>
+        {/* Section Annuaires (prestataire, entreprise, admin) */}
+        {['prestataire', 'entreprise', 'admin'].includes(userData?.roles?.name) && (
+          <AnnuairesSection 
+            annuaires={annuaires} 
+            userRole={userData?.roles?.name} 
+          />
         )}
 
-        {/* Actions rapides */}
+        {/* Sections spécifiques au rôle */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           {/* Section gauche */}
           <div className="space-y-6">
-            {/* Gestion du mariage */}
+            {/* Gestion du mariage - Uniquement pour marie */}
+            {userData?.roles?.name === 'marie' && (
             <div className="section-aroos">
               <h2 className="text-2xl font-bold text-gray-800 mb-4 flex items-center">
                 <span className="icon-aroos mr-3">💒</span>
@@ -317,9 +247,11 @@ export default function DashboardPage() {
                 </div>
               )}
             </div>
+            )}
 
-            {/* Tâches récentes */}
-            <div className="section-aroos">
+            {/* Tâches récentes - Uniquement pour marie */}
+            {userData?.roles?.name === 'marie' && (
+              <div className="section-aroos">
               <h2 className="text-2xl font-bold text-gray-800 mb-4 flex items-center">
                 <span className="icon-aroos mr-3">📝</span>
                 Tâches récentes
@@ -348,6 +280,7 @@ export default function DashboardPage() {
                 </div>
               )}
             </div>
+            )}
           </div>
 
           {/* Section droite */}

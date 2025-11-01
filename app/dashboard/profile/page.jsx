@@ -3,6 +3,8 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabaseClient";
+import UserHeader from "@/components/dashboard/UserHeader";
+import LoadingSpinner from "@/components/LoadingSpinner";
 import Link from "next/link";
 
 export default function UserProfile() {
@@ -13,6 +15,7 @@ export default function UserProfile() {
   const [loading, setLoading] = useState(true);     // État de chargement
   const [saving, setSaving] = useState(false);      // État de sauvegarde
   const [avatar, setAvatar] = useState(null);       // Nouvel avatar sélectionné
+  const [showSuccessMessage, setShowSuccessMessage] = useState(false);
   
   // Données du formulaire
   const [formData, setFormData] = useState({
@@ -39,10 +42,15 @@ export default function UserProfile() {
       }
       setUser(user);
 
-      // 2. Récupérer l'utilisateur depuis la table users (contient le téléphone)
+      // 2. Récupérer l'utilisateur depuis la table users (contient le téléphone + rôle)
       const { data: userData } = await supabase
         .from("users")
-        .select("id, phone")
+        .select(`
+          id, 
+          phone,
+          is_active,
+          roles(name, label)
+        `)
         .eq("auth_user_id", user.id)
         .single();
 
@@ -185,7 +193,10 @@ export default function UserProfile() {
       setProfile(updatedProfile);
       setUserData(prev => ({ ...prev, phone: formData.phone }));
       setAvatar(null);
-      alert("Profil mis à jour !");
+      
+      // Afficher le message de succès
+      setShowSuccessMessage(true);
+      setTimeout(() => setShowSuccessMessage(false), 5000);
 
     } catch (error) {
       alert(`Erreur: ${error.message}`);
@@ -197,9 +208,11 @@ export default function UserProfile() {
   // ===== AFFICHAGE =====
   if (loading) {
     return (
-      <div className="flex min-h-screen items-center justify-center">
-        <div className="text-xl">Chargement...</div>
-      </div>
+      <LoadingSpinner 
+        fullScreen={true} 
+        size="lg" 
+        text="Chargement de votre profil..." 
+      />
     );
   }
 
@@ -207,61 +220,104 @@ export default function UserProfile() {
     <div className="min-h-screen bg-gradient-to-br from-pink-50 to-purple-50">
       <div className="container mx-auto px-4 py-8">
         
-        {/* En-tête de la page */}
-        <div className="mb-8">
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-4xl font-bold bg-gradient-to-r from-pink-500 to-purple-600 bg-clip-text text-transparent mb-2">
-                👤 Mon Profil
-              </h1>
-              <p className="text-gray-600 text-lg">
-                Modifiez vos informations personnelles
-              </p>
+        {/* En-tête utilisateur */}
+        <UserHeader user={user} userData={userData} profile={profile} />
+        
+        {/* Message de succès */}
+        {showSuccessMessage && (
+          <div className="section-aroos mb-8 bg-gradient-to-r from-green-50 to-emerald-50 border-2 border-green-200 animate-fade-in-up">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center">
+                <span className="text-3xl mr-4">✅</span>
+                <div>
+                  <h3 className="flex-1 px-4 py-2 bg-gradient-to-r from-pink-400 to-orange-300 text-white rounded-lg hover:from-pink-500 hover:to-orange-400 transition-all duration-300 text-sm font-medium shadow-md hover:shadow-lg">Profil mis à jour !</h3>
+                  <p className="text-green-700">
+                    Vos informations ont été sauvegardées avec succès.
+                  </p>
+                </div>
+              </div>
+              <button
+                onClick={() => setShowSuccessMessage(false)}
+                className="btn-aroos-outline btn-sm"
+              >
+                ✕
+              </button>
             </div>
-            <Link href="/dashboard" className="px-4 py-2 border border-purple-500 text-purple-500 rounded-lg hover:bg-purple-500 hover:text-white transition-colors">
-              ← Retour au Dashboard
-            </Link>
           </div>
+        )}
+        
+        {/* Navigation */}
+        <div className="mb-8">
+          <Link href="/dashboard" className="btn-aroos-outline">
+            ← Retour au Dashboard
+          </Link>
         </div>
 
         {/* Formulaire principal */}
-        <div className="bg-white rounded-lg shadow-lg p-6 max-w-2xl mx-auto">
+        <div className="section-aroos max-w-3xl mx-auto">
+          <div className="flex items-center justify-between mb-6">
+            <div>
+              <h2 className="text-2xl font-bold text-gray-800 flex items-center">
+                <span className="icon-aroos mr-3">✏️</span>
+                Modifier mes informations
+              </h2>
+              <p className="text-gray-600 text-sm mt-1">
+                Mettez à jour vos informations personnelles
+              </p>
+            </div>
+            {userData?.roles && (
+              <span className={`badge-aroos ${
+                userData.roles.name === 'admin' ? 'bg-red-500' :
+                userData.roles.name === 'prestataire' ? 'bg-blue-500' :
+                userData.roles.name === 'entreprise' ? 'bg-purple-500' :
+                userData.roles.name === 'marie' ? 'bg-pink-500' :
+                'bg-gray-500'
+              }`}>
+                {userData.roles.label || userData.roles.name}
+              </span>
+            )}
+          </div>
+          
           <form onSubmit={handleSubmit} className="space-y-6">
             
             {/* Section Avatar */}
-            <div>
+            <div className="bg-gradient-to-r from-pink-50 to-purple-50 p-6 rounded-lg border-2 border-pink-200">
               <label className="block text-sm font-medium text-gray-700 mb-4">
-                Photo de profil
+                📸 Photo de profil
               </label>
-              <div className="flex items-center gap-6">
+              <div className="flex flex-col md:flex-row items-center gap-6">
                 {/* Affichage de l'avatar actuel */}
-                <div className="w-24 h-24 rounded-full overflow-hidden bg-gradient-to-r from-pink-500 to-purple-600 flex items-center justify-center text-white text-3xl font-bold">
-                  {profile?.avatar ? (
-                    <img 
-                      src={`${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/profil_avatars/${profile.avatar}`}
-                      alt="Avatar"
-                      className="w-full h-full object-cover"
-                    />
-                  ) : (
-                    profile?.first_name?.charAt(0) || user?.email?.charAt(0)
-                  )}
+                <div className="avatar">
+                  <div className="mask mask-squircle h-24 w-24 ring-4 ring-pink-300">
+                    {profile?.avatar ? (
+                      <img 
+                        src={`${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/profil_avatars/${profile.avatar}`}
+                        alt="Avatar"
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <div className="w-full h-full bg-gradient-to-r from-pink-500 to-purple-600 flex items-center justify-center text-white text-4xl font-bold">
+                        {profile?.first_name?.charAt(0) || user?.email?.charAt(0)}
+                      </div>
+                    )}
+                  </div>
                 </div>
                 
                 {/* Sélection d'un nouvel avatar */}
-                <div>
+                <div className="flex-1">
                   <input
                     type="file"
                     accept="image/*"
                     onChange={handleAvatarChange}
-                    className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-purple-50 file:text-purple-700 hover:file:bg-purple-100"
+                    className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-gradient-to-r file:from-pink-500 file:to-purple-600 file:text-white hover:file:from-pink-600 hover:file:to-purple-700 file:cursor-pointer"
                   />
                   {avatar && (
-                    <p className="text-sm text-blue-600 mt-2">
-                      Nouveau fichier: {avatar.name}
+                    <p className="text-sm text-green-600 mt-2 font-medium">
+                      ✅ Nouveau fichier: {avatar.name}
                     </p>
                   )}
                   <p className="text-xs text-gray-500 mt-1">
-                    Formats acceptés: JPG, PNG, GIF (max 5MB)
+                    💡 Formats acceptés: JPG, PNG, GIF (max 5MB)
                   </p>
                 </div>
               </div>
@@ -270,29 +326,29 @@ export default function UserProfile() {
             {/* Informations personnelles */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Prénom
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Prénom *
                 </label>
                 <input
                   type="text"
                   name="first_name"
                   value={formData.first_name}
                   onChange={handleInputChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                  className="input-aroos w-full"
                   placeholder="Votre prénom"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Nom
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Nom *
                 </label>
                 <input
                   type="text"
                   name="last_name"
                   value={formData.last_name}
                   onChange={handleInputChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                  className="input-aroos w-full"
                   placeholder="Votre nom"
                 />
               </div>
@@ -300,32 +356,32 @@ export default function UserProfile() {
 
             {/* Téléphone */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Téléphone
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                📱 Téléphone
               </label>
               <input
                 type="tel"
                 name="phone"
                 value={formData.phone}
                 onChange={handleInputChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
-                placeholder="+33 6 12 34 56 78"
+                className="input-aroos w-full"
+                placeholder="+253 XX XX XX XX"
               />
             </div>
 
             {/* Email (lecture seule) */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
                 Email
               </label>
               <input
                 type="email"
                 value={user?.email || ""}
                 disabled
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-100"
+                className="input-aroos w-full bg-gray-50 cursor-not-allowed opacity-75"
               />
               <p className="text-xs text-gray-500 mt-1">
-                L'email ne peut pas être modifié
+                🔒 L'email ne peut pas être modifié
               </p>
             </div>
 
@@ -334,9 +390,9 @@ export default function UserProfile() {
               <button
                 type="submit"
                 disabled={saving}
-                className="px-6 py-2 bg-gradient-to-r from-pink-500 to-purple-600 text-white rounded-lg hover:from-pink-600 hover:to-purple-700 disabled:opacity-50 transition-all"
+                className="btn-aroos"
               >
-                {saving ? "Sauvegarde..." : "Sauvegarder"}
+                {saving ? "💾 Sauvegarde..." : "💾 Sauvegarder"}
               </button>
             </div>
           </form>

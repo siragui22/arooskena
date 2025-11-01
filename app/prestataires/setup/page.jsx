@@ -113,7 +113,8 @@ export default function PrestataireSetup() {
         .eq('auth_user_id', user.id)
         .single();
 
-      if (!userData || userData.roles?.name !== 'prestataire') {
+      // Accepter les rôles: entreprise, prestataire, admin
+      if (!userData || !['entreprise', 'prestataire', 'admin'].includes(userData.roles?.name)) {
         router.push('/dashboard');
         return;
       }

@@ -1,82 +1,62 @@
 
 
-'use client';
-
-import { useEffect, useState } from 'react';
 import Image from 'next/image';
 import { supabase } from '@/lib/supabaseClient';
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://your-project.supabase.co';
+// La fonction pour charger les données est maintenant à l'extérieur et réutilisable
+async function getCarouselItems() {
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://your-project.supabase.co';
 
-const Carousel = () => {
-  const [carouselItems, setCarouselItems] = useState([]);
-  const [loading, setLoading] = useState(true);
+  // Si Supabase n'est pas configuré, retourner les images statiques
+  if (supabaseUrl === 'https://your-project.supabase.co') {
+    return [
+      { id: 1, image_url: '/carousel/1.jpg', titre: 'Slide 1' },
+      { id: 2, image_url: '/carousel/2.jpg', titre: 'Slide 2' },
+      { id: 3, image_url: '/carousel/3.jpg', titre: 'Slide 3' },
+      { id: 4, image_url: '/carousel/4.jpg', titre: 'Slide 4' },
+    ];
+  }
 
-  useEffect(() => {
-    const loadCarouselItems = async () => {
-      try {
-        // Vérifier si Supabase est configuré
-        if (supabaseUrl === 'https://your-project.supabase.co') {
-          // Utiliser les images statiques par défaut
-          setCarouselItems([
-            { id: 1, image_url: '/carousel/1.jpg', titre: 'Slide 1' },
-            { id: 2, image_url: '/carousel/2.jpg', titre: 'Slide 2' },
-            { id: 3, image_url: '/carousel/3.jpg', titre: 'Slide 3' },
-            { id: 4, image_url: '/carousel/4.jpg', titre: 'Slide 4' },
-          ]);
-          setLoading(false);
-          return;
-        }
+  // Essayer de fetch depuis Supabase
+  try {
+    const { data, error } = await supabase
+      .from('carousel_items')
+      .select('*')
+      .eq('is_active', true)
+      .order('ordre', { ascending: true });
 
-        const { data, error } = await supabase
-          .from('carousel_items')
-          .select('*')
-          .eq('is_active', true)
-          .order('ordre', { ascending: true });
+    if (error || !data || data.length === 0) {
+      throw new Error('Supabase fetch failed or returned no data');
+    }
 
-        if (error) {
-          console.error('Erreur lors du chargement du carrousel:', error);
-          // Fallback vers les images statiques
-          setCarouselItems([
-            { id: 1, image_url: '/carousel/1.jpg', titre: 'Slide 1' },
-            { id: 2, image_url: '/carousel/2.jpg', titre: 'Slide 2' },
-            { id: 3, image_url: '/carousel/3.jpg', titre: 'Slide 3' },
-            { id: 4, image_url: '/carousel/4.jpg', titre: 'Slide 4' },
-          ]);
-        } else {
-          setCarouselItems(data || []);
-        }
-      } catch (error) {
-        console.error('Erreur lors du chargement du carrousel:', error);
-        // Fallback vers les images statiques
-        setCarouselItems([
-          { id: 1, image_url: '/carousel/1.jpg', titre: 'Slide 1' },
-          { id: 2, image_url: '/carousel/2.jpg', titre: 'Slide 2' },
-          { id: 3, image_url: '/carousel/3.jpg', titre: 'Slide 3' },
-          { id: 4, image_url: '/carousel/4.jpg', titre: 'Slide 4' },
-        ]);
-      } finally {
-        setLoading(false);
-      }
-    };
+    return data;
+  } catch (error) {
+    console.error('Carousel fetch error:', error.message);
+    // En cas d'erreur, retourner les images statiques comme fallback
+    return [
+      { id: 1, image_url: '/carousel/1.jpg', titre: 'Slide 1' },
+      { id: 2, image_url: '/carousel/2.jpg', titre: 'Slide 2' },
+      { id: 3, image_url: '/carousel/3.jpg', titre: 'Slide 3' },
+      { id: 4, image_url: '/carousel/4.jpg', titre: 'Slide 4' },
+    ];
+  }
+}
 
-    loadCarouselItems();
-  }, []);
+// Le composant Carousel est maintenant un Server Component (async)
+const Carousel = async () => {
+  const carouselItems = await getCarouselItems();
 
-  if (loading) {
+  if (!carouselItems || carouselItems.length === 0) {
+    // Affiche un placeholder si aucune image n'est disponible
     return (
-      <div className="w-[1102px] h-[343px] mx-auto flex items-center justify-center">
-        <div className="loading loading-spinner loading-lg"></div>
+      <div className="w-[1102px] h-[343px] mx-auto bg-gray-200 rounded-lg flex items-center justify-center">
+        <p className="text-gray-500">Le carrousel est actuellement indisponible.</p>
       </div>
     );
   }
 
-  if (carouselItems.length === 0) {
-    return null;
-  }
-
   return (
-    <div className="w-[1102px] h-[343px] mx-auto">
+    <div className="w-full max-w-[1102px] h-[343px] mx-auto">
       <div className="carousel w-full h-full rounded-lg overflow-hidden shadow-lg">
         {carouselItems.map((item, index) => (
           <div
@@ -90,6 +70,8 @@ const Carousel = () => {
               width={1102}
               height={343}
               className="w-full h-full object-cover"
+              // La prop 'priority' précharge la première image, améliorant le LCP
+              priority={index === 0}
             />
             {item.description && (
               <div className="absolute bottom-0 left-0 right-0 bg-black bg-opacity-50 text-white p-4">
@@ -100,13 +82,13 @@ const Carousel = () => {
             <div className="absolute flex justify-between transform -translate-y-1/2 left-5 right-5 top-1/2">
               <a
                 href={`#slide${(index - 1 + carouselItems.length) % carouselItems.length}`}
-                className="btn btn-circle"
+                className="btn btn-circle btn-ghost text-white"
               >
                 ❮
               </a>
               <a
                 href={`#slide${(index + 1) % carouselItems.length}`}
-                className="btn btn-circle"
+                className="btn btn-circle btn-ghost text-white"
               >
                 ❯
               </a>
