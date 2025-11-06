@@ -298,7 +298,7 @@ export default function MonStudioProfile() {
             </div>
           </div>
 
-          {/* Informations personnelles */}
+          {/* Mes informations personnelles */}
           <div className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
@@ -369,7 +369,7 @@ export default function MonStudioProfile() {
                 />
               </div>
               <p className="text-xs text-gray-500 mt-1">
-                L'email ne peut pas être modifié
+                L&apos;email ne peut pas être modifié
               </p>
             </div>
           </div>

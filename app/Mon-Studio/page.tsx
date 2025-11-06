@@ -189,7 +189,7 @@ export default function MonStudio() {
               <div className="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center">
                 <AlertTriangle className="w-6 h-6 text-red-600" />
               </div>
-              <h3 className="text-xl font-bold text-gray-900">Supprimer l'annuaire ?</h3>
+              <h3 className="text-xl font-bold text-gray-900">Supprimer l&apos;annuaire ?</h3>
             </div>
             
             <p className="text-gray-600 mb-2">
@@ -469,7 +469,7 @@ export default function MonStudio() {
                       {lieu.capacite_max && (
                         <div className="flex items-center gap-2 text-sm text-gray-600">
                           <Users className="w-4 h-4 text-gray-400 flex-shrink-0" />
-                          <span>Jusqu'à {lieu.capacite_max} personnes</span>
+                          <span>Jusqu&apos;à {lieu.capacite_max} personnes</span>
                         </div>
                       )}
                       

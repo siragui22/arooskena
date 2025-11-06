@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabaseClient';
 import { 
@@ -26,11 +26,7 @@ export default function TimelinePage() {
     notes: ''
   });
 
-  useEffect(() => {
-    fetchTimelineData();
-  }, []);
-
-  const fetchTimelineData = async () => {
+  const fetchTimelineData = useCallback(async () => {
     setLoading(true);
 
     const { data: { user: authUser } } = await supabase.auth.getUser();
@@ -67,7 +63,11 @@ export default function TimelinePage() {
     }
 
     setLoading(false);
-  };
+  }, [router]);
+
+  useEffect(() => {
+    fetchTimelineData();
+  }, [fetchTimelineData]);
 
   const handleAddMilestone = async (e) => {
     e.preventDefault();
@@ -397,7 +397,7 @@ export default function TimelinePage() {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="sm:col-span-2">
                   <label className="block text-sm font-semibold text-gray-900 mb-2">
-                    Titre de l'événement *
+                    Titre de l&apos;événement *
                   </label>
                   <input
                     type="text"

@@ -519,7 +519,7 @@ export default function StudioPrestataireSetup() {
               
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Nom de l'entreprise <span className="text-red-500">*</span>
+                  Nom de l&apos;entreprise <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="text"
@@ -564,7 +564,7 @@ export default function StudioPrestataireSetup() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Catégorie <span className="text-red-500">*</span>
+                    Catégories d&apos;activité <span className="text-red-500">*</span>
                   </label>
                   <select
                     required
@@ -752,7 +752,7 @@ export default function StudioPrestataireSetup() {
               
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Type d'abonnement
+                  Type d&apos;abonnement
                 </label>
                 <select
                   value={formData.subscription_id}
@@ -811,7 +811,7 @@ export default function StudioPrestataireSetup() {
                       <div className="flex justify-between items-start mb-4">
                         <h3 className="font-semibold flex items-center gap-2">
                           <MapPin className="w-5 h-5 text-pink-600" />
-                          Adresse {index + 1}
+                          Adresse d&apos;activité principal + {index + 1}
                         </h3>
                         <button
                           onClick={() => removeAddress(index)}
@@ -929,7 +929,7 @@ export default function StudioPrestataireSetup() {
                       <div className="flex justify-between items-start mb-4">
                         <h3 className="font-semibold flex items-center gap-2">
                           <ImageIcon className="w-5 h-5 text-purple-600" />
-                          Groupe d'images {index + 1}
+                          Groupe d&apos;images {index + 1}
                           {image.mainImageIndex === 0 && image.files?.length > 0 && (
                             <span className="px-2 py-1 bg-yellow-100 text-yellow-700 text-xs rounded-full">Principale</span>
                           )}
@@ -1027,7 +1027,7 @@ export default function StudioPrestataireSetup() {
               ) : (
                 <>
                   <Check className="w-5 h-5" />
-                  <span>Créer l'annuaire</span>
+                  <span>Créer l&apos;annuaire</span>
                 </>
               )}
             </button>

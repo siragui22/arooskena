@@ -313,7 +313,7 @@ export default function SignUpPage() {
                 </Link>
               </p>
               <Link href="/" className="block text-sm text-gray-500 hover:text-gray-700">
-                Retour à l'accueil
+                Retour à l&apos;accueil
               </Link>
             </div>
           </div>

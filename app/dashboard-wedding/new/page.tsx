@@ -196,7 +196,7 @@ export default function NewWeddingPage() {
             {/* Estimated Guests */}
             <div>
               <label className="block text-sm font-semibold text-gray-900 mb-2">
-                Nombre d'invités estimé
+                Nombre d&apos;invités estimé
               </label>
               <div className="relative">
                 <Users className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />

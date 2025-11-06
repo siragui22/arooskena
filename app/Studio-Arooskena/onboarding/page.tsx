@@ -83,7 +83,7 @@ export default function StudioOnboarding() {
               href="/"
               className="text-sm text-gray-600 hover:text-pink-600 transition-colors"
             >
-              Retour à l'accueil
+              Retour à l&apos;accueil
             </Link>
           </div>
         </div>
@@ -101,7 +101,7 @@ export default function StudioOnboarding() {
             Créez votre annuaire professionnel
           </h2>
           <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-            Choisissez le type d'annuaire qui correspond à votre activité pour apparaître sur Arooskena
+            Choisissez le type d&apos;annuaire qui correspond à votre activité pour apparaître sur Arooskena
           </p>
         </div>
 
@@ -155,7 +155,7 @@ export default function StudioOnboarding() {
                 onClick={() => router.push('/Studio-Arooskena/setup/prestataire')}
                 className="w-full bg-gradient-to-r from-pink-500 to-orange-400 hover:from-pink-600 hover:to-orange-500 text-white font-semibold py-4 px-6 rounded-xl transition-all duration-200 shadow-lg hover:shadow-xl flex items-center justify-center gap-2 group"
               >
-                <span>Créer mon annuaire prestataire</span>
+                <span>Je créerai mon annuaire plus tard</span>
                 <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
               </button>
             </div>
@@ -221,10 +221,10 @@ export default function StudioOnboarding() {
             </div>
             <div>
               <h4 className="font-semibold text-gray-900 mb-1">
-                Vous pouvez créer les deux types d'annuaires
+                Vous pouvez créer les deux types d&apos;annuaires
               </h4>
               <p className="text-sm text-gray-600">
-                Si votre activité combine services et lieu de réception, vous pourrez créer un deuxième annuaire plus tard depuis votre tableau de bord.
+                Félicitations ! Votre compte d&apos;entreprise est créé. 🎉 Si votre activité combine services et lieu de réception, vous pourrez créer un deuxième annuaire plus tard depuis votre tableau de bord.
               </p>
             </div>
           </div>
@@ -233,7 +233,7 @@ export default function StudioOnboarding() {
         {/* Help */}
         <div className="text-center mt-8">
           <p className="text-sm text-gray-500">
-            Besoin d'aide ?{' '}
+            Besoin d&apos;aide ?{' '}
             <Link href="/contact" className="text-pink-600 hover:text-pink-700 font-medium">
               Contactez-nous
             </Link>

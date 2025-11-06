@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabaseClient';
 import { 
@@ -39,11 +39,7 @@ export default function TasksPage() {
     notes: ''
   });
 
-  useEffect(() => {
-    fetchTasksData();
-  }, []);
-
-  const fetchTasksData = async () => {
+  const fetchTasksData = useCallback(async () => {
     setLoading(true);
 
     const { data: { user: authUser } } = await supabase.auth.getUser();
@@ -126,7 +122,11 @@ export default function TasksPage() {
     }
 
     setLoading(false);
-  };
+  }, [router]);
+
+  useEffect(() => {
+    fetchTasksData();
+  }, [fetchTasksData]);
 
   const handleAddTask = async (e) => {
     e.preventDefault();
@@ -510,7 +510,7 @@ export default function TasksPage() {
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-semibold text-gray-900 mb-2">
-                    Date d'échéance
+                    Date d&apos;échéance
                   </label>
                   <input 
                     type="date" 

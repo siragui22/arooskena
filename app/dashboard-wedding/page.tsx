@@ -272,7 +272,7 @@ export default function DashboardWeddingPage() {
                   </div>
                 </div>
                 <p className="text-sm text-gray-600">
-                  jusqu'au {new Date(wedding.wedding_date).toLocaleDateString('fr-FR')}
+                  jusqu&apos;au {new Date(wedding.wedding_date).toLocaleDateString('fr-FR')}
                 </p>
               </div>
             </div>
@@ -359,7 +359,7 @@ export default function DashboardWeddingPage() {
                   <CheckCircle className="text-blue-600" size={24} />
                 </div>
                 <h3 className="font-semibold text-gray-900 mb-1">Tâches</h3>
-                <p className="text-sm text-gray-600">Suivre l'avancement</p>
+                <p className="text-sm text-gray-600">Suivre l&apos;avancement</p>
               </Link>
 
               <Link 

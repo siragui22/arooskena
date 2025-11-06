@@ -456,7 +456,7 @@ export default function EditLieu() {
               <div className="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center">
                 <AlertTriangle className="w-6 h-6 text-red-600" />
               </div>
-              <h3 className="text-xl font-bold text-gray-900">Supprimer l'annuaire ?</h3>
+              <h3 className="text-xl font-bold text-gray-900">Supprimer l&apos;annuaire ?</h3>
             </div>
             
             <p className="text-gray-600 mb-6">
@@ -510,7 +510,7 @@ export default function EditLieu() {
                 <div className="w-12 h-12 bg-gradient-to-r from-pink-400 to-orange-300 rounded-xl flex items-center justify-center">
                   <Building2 className="w-6 h-6 text-white" />
                 </div>
-                Modifier l'annuaire
+                Modifier l&apos;annuaire
               </h1>
               <p className="text-gray-500 mt-1">{formData.nom_lieu}</p>
             </div>
@@ -639,7 +639,7 @@ export default function EditLieu() {
                 {/* Autres images */}
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Ajouter d'autres images
+                    Ajouter d&apos;autres images
                   </label>
                   <div className="flex gap-2">
                     <input

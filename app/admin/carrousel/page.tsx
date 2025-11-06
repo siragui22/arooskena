@@ -243,7 +243,7 @@ export default function CarrouselAdminPage() {
           Retour
         </Link>
         <h1 className="text-4xl font-bold text-gray-900">Gestion du Carrousel</h1>
-        <p className="text-gray-600 mt-2">Gérez les slides publicitaires de la page d'accueil</p>
+        <p className="text-gray-600 mt-2">Gérez les slides publicitaires de la page d&apos;accueil</p>
       </div>
 
       {/* Add Button */}

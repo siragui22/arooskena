@@ -728,7 +728,7 @@ export default function StudioLieuSetup() {
                 </div>
                 <div>
                   <h2 className="text-2xl font-bold text-gray-900">Capacité & Tarification</h2>
-                  <p className="text-sm text-gray-500">Nombre d'invités et tarifs</p>
+                  <p className="text-sm text-gray-500">Nombre d&apos;invités et tarifs</p>
                 </div>
               </div>
               
@@ -849,7 +849,7 @@ export default function StudioLieuSetup() {
                     className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-purple-500 to-blue-400 text-white rounded-lg hover:shadow-lg transition-all"
                   >
                     <Plus className="w-5 h-5" />
-                    Ajouter l'adresse du lieu
+                    Ajouter l&apos;adresse du lieu
                   </button>
                 </div>
               ) : (
@@ -1100,7 +1100,7 @@ export default function StudioLieuSetup() {
               ) : (
                 <>
                   <Check className="w-5 h-5" />
-                  <span>Créer l'annuaire</span>
+                  <span>Créer l&apos;annuaire</span>
                 </>
               )}
             </button>

@@ -236,7 +236,7 @@ export default function ProfilePage() {
                 </label>
               </div>
               <p className="text-sm text-gray-500 mt-3">
-                Cliquez sur l'icône pour changer votre photo
+                Cliquez sur l&apos;icône pour changer votre photo
               </p>
             </div>
 
@@ -290,7 +290,7 @@ export default function ProfilePage() {
                   />
                 </div>
                 <p className="text-xs text-gray-500 mt-1">
-                  L'email ne peut pas être modifié
+                  L&apos;email ne peut pas être modifié
                 </p>
               </div>
 

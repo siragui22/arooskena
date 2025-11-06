@@ -1,3 +1,4 @@
+import Image from "next/image";
 import { Heart, Eye, MessageCircle, Euro } from "lucide-react";
 import { WeddingBadge } from "@/components/ui/wedding-badge";
 import { WeddingButton } from "@/components/ui/wedding-button";
@@ -33,10 +34,11 @@ export function ProviderCard({ provider }: ProviderCardProps) {
       {/* Image Section */}
       <div className="relative h-64 overflow-hidden">
         {mainImage ? (
-          <img
+          <Image
             src={mainImage.url}
             alt={provider.nom_entreprise}
-            className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+            fill
+            className="object-cover transition-transform duration-700 group-hover:scale-110"
           />
         ) : (
           <div className="w-full h-full bg-gradient-to-br from-muted to-accent/30 flex items-center justify-center">
