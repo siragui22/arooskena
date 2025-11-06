@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabaseClient';
 import { 
@@ -42,11 +42,7 @@ export default function InspirationsPage() {
     { id: 'autre', label: 'Autre', icon: ImageIcon }
   ];
 
-  useEffect(() => {
-    fetchInspirationsData();
-  }, []);
-
-  const fetchInspirationsData = async () => {
+  const fetchInspirationsData = useCallback(async () => {
     setLoading(true);
 
     const { data: { user: authUser } } = await supabase.auth.getUser();
@@ -83,7 +79,11 @@ export default function InspirationsPage() {
     }
 
     setLoading(false);
-  };
+  }, [router]);
+
+  useEffect(() => {
+    fetchInspirationsData();
+  }, [fetchInspirationsData]);
 
   const handleFileUpload = async (file) => {
     setUploading(true);
@@ -421,7 +421,7 @@ export default function InspirationsPage() {
               {uploadMode === 'url' && (
                 <div>
                   <label className="block text-sm font-semibold text-gray-900 mb-2">
-                    URL de l'image *
+                    URL de l&apos;image *
                   </label>
                   <input
                     type="url"
@@ -430,7 +430,7 @@ export default function InspirationsPage() {
                     placeholder="https://pinterest.com/pin/..."
                     className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-pink-300 text-sm break-all"
                   />
-                  <p className="text-xs text-gray-500 mt-1">Collez l'URL depuis Pinterest, Instagram, etc.</p>
+                  <p className="text-xs text-gray-500 mt-1">Collez l&apos;URL depuis Pinterest, Instagram, etc.</p>
                   
                   {inspirationForm.source_url && (
                     <div className="mt-3 aspect-video relative rounded-xl overflow-hidden bg-gray-100">
@@ -482,7 +482,7 @@ export default function InspirationsPage() {
                         <div className="text-center">
                           <Plus className="w-12 h-12 text-gray-400 mx-auto mb-2" />
                           <p className="text-sm font-medium text-gray-700">Cliquez pour choisir</p>
-                          <p className="text-xs text-gray-500 mt-1">PNG, JPG jusqu'à 5MB</p>
+                          <p className="text-xs text-gray-500 mt-1">PNG, JPG jusqu&apos;à 5MB</p>
                         </div>
                       )}
                     </label>

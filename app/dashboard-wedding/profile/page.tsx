@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabaseClient';
 import { ArrowLeft, Camera, User, Mail, Phone, MapPin, Save, X } from 'lucide-react';
@@ -20,11 +20,7 @@ export default function ProfilePage() {
     phone: ''
   });
 
-  useEffect(() => {
-    fetchUserData();
-  }, []);
-
-  const fetchUserData = async () => {
+  const fetchUserData = useCallback(async () => {
     setLoading(true);
 
     const { data: { user: authUser } } = await supabase.auth.getUser();
@@ -59,7 +55,11 @@ export default function ProfilePage() {
     }
 
     setLoading(false);
-  };
+  }, [router]);
+
+  useEffect(() => {
+    fetchUserData();
+  }, [fetchUserData]);
 
   const handleFileChange = (e) => {
     const file = e.target.files[0];

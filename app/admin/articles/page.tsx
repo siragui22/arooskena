@@ -308,7 +308,7 @@ export default function AdminArticlesPage() {
           <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex justify-center items-center">
             <div className="bg-white rounded-lg p-8">
               <h2 className="text-xl font-bold mb-4">Confirmer la suppression</h2>
-              <p>Supprimer l'article "{articleToDelete.title}" ?</p>
+              <p>Supprimer l&apos;article &quot;{articleToDelete.title}&quot; ?</p>
               <div className="flex justify-end gap-4 mt-6">
                 <button onClick={() => setArticleToDelete(null)} className="btn-aroos-outline">Annuler</button>
                 <button onClick={handleDelete} className="btn-aroos bg-red-600">Supprimer</button>
